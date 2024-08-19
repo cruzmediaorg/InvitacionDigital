@@ -64,4 +64,27 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function pages()
+    {
+        return $this->hasMany(Page::class);
+    }
+
+    public function defaultPage()
+    {
+        return $this->pages()->first();
+    }
+
+    public function defaultPageBlocks()
+    {
+        return $this->defaultPage()?->blocksInMenuFormat() ?? [];
+    }
+
+    public function onboardingComplete()
+    {
+        // When user has a default page and that page has blocks
+        return $this->defaultPage()?->blocks()->exists();
+    }
+
+
 }

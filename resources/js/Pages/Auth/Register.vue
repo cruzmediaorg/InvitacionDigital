@@ -7,6 +7,8 @@ import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
+import ApplicationLogo from "@/Components/ApplicationLogo.vue";
+import BorderlessInput from "@/Components/BorderlessInput.vue";
 
 const form = useForm({
     name: '',
@@ -28,13 +30,13 @@ const submit = () => {
 
     <AuthenticationCard>
         <template #logo>
-            <AuthenticationCardLogo />
+            <ApplicationLogo />
         </template>
 
         <form @submit.prevent="submit">
             <div>
                 <InputLabel for="name" value="Name" />
-                <TextInput
+                <BorderlessInput
                     id="name"
                     v-model="form.name"
                     type="text"
@@ -48,7 +50,7 @@ const submit = () => {
 
             <div class="mt-4">
                 <InputLabel for="email" value="Email" />
-                <TextInput
+                <BorderlessInput
                     id="email"
                     v-model="form.email"
                     type="email"
@@ -61,7 +63,7 @@ const submit = () => {
 
             <div class="mt-4">
                 <InputLabel for="password" value="Password" />
-                <TextInput
+                <BorderlessInput
                     id="password"
                     v-model="form.password"
                     type="password"
@@ -74,7 +76,7 @@ const submit = () => {
 
             <div class="mt-4">
                 <InputLabel for="password_confirmation" value="Confirm Password" />
-                <TextInput
+                <BorderlessInput
                     id="password_confirmation"
                     v-model="form.password_confirmation"
                     type="password"
