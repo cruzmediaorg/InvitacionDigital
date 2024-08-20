@@ -112,7 +112,7 @@ const saveSettings = () => {
                         @input="updateArrayField(field.key, $event)"
                     />
                 </template>
-                <template v-if="field.type === 'Image'">
+                <template v-else-if="field.type === 'Image'">
                     <ImageUploader :id="field.fieldId" :value="field.value" @input="setFieldValue(field.key, $event)" />
                 </template>
                 <template v-else>
