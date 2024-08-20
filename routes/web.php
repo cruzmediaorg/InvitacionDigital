@@ -5,10 +5,8 @@ use App\Http\Controllers\ImageBlockFieldController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\UpdateBlockOrderController;
-use App\Http\Controllers\UploadImageBlockField;
 use App\Http\Middleware\OnboardingRequired;
 use App\Models\Page;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 

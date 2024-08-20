@@ -40,9 +40,10 @@ class PageController extends Controller
      */
     public function show(Page $page)
     {
-        return Inertia::render($page->theme->path . '/Show', [
-            'page' => $page->load(['blocks.fields', 'blocks.type', 'blocks.blocksTypeDesign']),
+        return Inertia::render('Pages/Public/Show', [
+            'page' => $page->load(['blocks.fields', 'blocks.type', 'blocks.blocksTypeDesign', 'theme']),
             'styles' => $page->getEffectiveStyles(),
+            'theme' => $page->theme->path, // Add this line to pass the theme path
         ]);
     }
 

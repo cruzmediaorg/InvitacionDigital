@@ -36,11 +36,12 @@ const otherBlocks = computed(() => {
 });
 
 const getComponentName = (block) => {
-  return block.blocks_type_design?.component || block.type.page_component;
+    return block.blocks_type_design?.component || block.type.page_component;
 };
 
+
 const getComponent = (componentName) => {
-    return defineAsyncComponent(() => import(`./components/${componentName}`));
+    return defineAsyncComponent(() => import(`./Themes/${props.page.theme.name}/Components/${componentName}`));
 };
 
 const globalStyles = computed(() => ({
@@ -192,7 +193,7 @@ const globalStyles = computed(() => ({
     line-height: 1.6;
     margin-bottom: 20px;
 
-   p {
+    p {
         margin-bottom: 15px;
     }
 }
@@ -230,14 +231,14 @@ const globalStyles = computed(() => ({
         border-radius: 8px;
         padding: 10px;
 
-         summary {
+        summary {
             font-weight: bold;
             cursor: pointer;
             padding: 5px 0;
         }
 
 
-         p {
+        p {
             margin-top: 10px;
             padding-left: 20px;
         }
