@@ -1,5 +1,5 @@
 <template>
-    <div class="page-container">
+    <div class="page-container" :class="{ 'mobile-view': isMobileView }">
         <div class="home-section" :style="homeStyles">
             <component
                 v-if="homeBlock"
@@ -8,12 +8,12 @@
                 :block="homeBlock"
             />
         </div>
-        <div :class="{'scrollable-section': true}" :style="bodyStyles">
-            <component 
+        <div class="scrollable-section" :style="bodyStyles">
+            <component
+                :id="generateComponentId(block.type.name)"
                 v-for="block in otherBlocks"
                 :key="block.id"
                 :is="getComponent(getComponentName(block))"
-                :theme="bodyTheme"
                 :block="block"
             />
         </div>
@@ -23,24 +23,31 @@
 <script setup>
 import { defineAsyncComponent, computed } from 'vue';
 
-const props = defineProps(['page', 'styles']);
+const props = defineProps({
+    page: Object,
+    styles: Object,
+    isMobileView: {
+        type: Boolean,
+        default: false
+    }
+});
 
 const homeBlock = computed(() => {
-    return props.page.blocks.find(block => block.type?.name === 'Home');
+    return props.page.blocks?.find(block => block.type.name === 'Home');
 });
 
 const otherBlocks = computed(() => {
     return props.page.blocks
-        .filter(block => block.type?.name !== 'Home')
+        .filter(block => block.type.name !== 'Home')
         .sort((a, b) => a.order - b.order);
 });
 
 const getComponentName = (block) => {
-    return block.blocks_type_design?.component || block.type?.page_component;
+    return block.blocks_type_design?.component || block.type.page_component;
 };
 
 const getComponent = (componentName) => {
-    return defineAsyncComponent(() => import(`./Themes/${props.page.theme?.name}/Components/${componentName}`));
+    return defineAsyncComponent(() => import(`./Themes/${props.page.theme.name}/Components/${componentName}`));
 };
 
 const homeStyles = computed(() => ({
@@ -86,6 +93,11 @@ const bodyTheme = computed(() => ({
     h3_font_size: props.styles.body_h3_font_size,
     p_font_size: props.styles.body_p_font_size,
 }));
+
+const generateComponentId = (componentName) => {
+    // Remove spaces and special characters
+    return componentName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+};
 </script>
 
 <style lang="scss" scoped>
@@ -95,6 +107,13 @@ const bodyTheme = computed(() => ({
         height: 100vh;
         overflow: hidden;
     }
+
+    &.mobile-view {
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        overflow: visible;
+    }
 }
 
 .home-section {
@@ -102,6 +121,11 @@ const bodyTheme = computed(() => ({
         flex: 0 0 50%;
         height: 100vh;
         overflow: hidden;
+    }
+
+    .mobile-view & {
+        height: auto;
+        overflow: visible;
     }
 
     ::v-deep h1, ::v-deep h2, ::v-deep h3, ::v-deep h4, ::v-deep h5, ::v-deep h6 {
@@ -128,16 +152,22 @@ const bodyTheme = computed(() => ({
         padding: 2rem;
     }
 
-    ::v-deep h1, ::v-deep h2, ::v-deep h3, ::v-deep h4, ::v-deep h5, ::v-deep h6 {
+    .mobile-view & {
+        height: auto;
+        overflow: visible;
+        padding: 1rem;
+    }
+
+    :deep(h1), :deep(h2), :deep(h3), :deep(h4), :deep(h5), :deep(h6) {
         color: var(--body-h-text-color);
         font-family: var(--body-h-font-family);
     }
 
-    ::v-deep h1 { font-size: var(--body-h1-font-size); }
-    ::v-deep h2 { font-size: var(--body-h2-font-size); }
-    ::v-deep h3 { font-size: var(--body-h3-font-size); }
+    :deep(h1) { font-size: var(--body-h1-font-size); }
+    :deep(h2) { font-size: var(--body-h2-font-size); }
+    :deep(h3) { font-size: var(--body-h3-font-size); }
 
-    ::v-deep p, ::v-deep div {
+    :deep(p), :deep(div) {
         color: var(--body-p-text-color);
         font-family: var(--body-p-font-family);
         font-size: var(--body-p-font-size);

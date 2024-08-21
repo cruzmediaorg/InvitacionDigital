@@ -16,7 +16,7 @@ class BlockController extends Controller
     public function edit(Page $page, Block $block)
     {
         return Inertia::render($block->type->form_component, [
-            'page' => $page,
+            'page' => $page->load(['blocks.fields', 'blocks.type', 'theme']),
             'block' => $block->load('fields', 'type.blockTypesFields'),
         ]);
     }
