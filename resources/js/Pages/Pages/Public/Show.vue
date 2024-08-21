@@ -1,19 +1,19 @@
 <template>
-    <div :style="globalStyles" :class="{'page-container': true}">
-        <div :class="{'home-section': true}">
+    <div class="page-container">
+        <div class="home-section" :style="homeStyles">
             <component
                 v-if="homeBlock"
                 :is="getComponent(getComponentName(homeBlock))"
-                :theme="styles"
+                :theme="homeTheme"
                 :block="homeBlock"
             />
         </div>
-        <div :class="{'scrollable-section': true}">
-            <component
+        <div :class="{'scrollable-section': true}" :style="bodyStyles">
+            <component 
                 v-for="block in otherBlocks"
                 :key="block.id"
                 :is="getComponent(getComponentName(block))"
-                :theme="styles"
+                :theme="bodyTheme"
                 :block="block"
             />
         </div>
@@ -39,39 +39,56 @@ const getComponentName = (block) => {
     return block.blocks_type_design?.component || block.type.page_component;
 };
 
-
 const getComponent = (componentName) => {
     return defineAsyncComponent(() => import(`./Themes/${props.page.theme.name}/Components/${componentName}`));
 };
 
-const globalStyles = computed(() => ({
-    '--h-text-color': props.styles.h_text_color,
-    '--p-text-color': props.styles.p_text_color,
-    '--h-font-family': `${props.styles.h_font_family}, sans-serif`,
-    '--p-font-family': `${props.styles.p_font_family}, sans-serif`,
-    '--h1-font-size': `${props.styles.h1_font_size}px`,
-    '--h2-font-size': `${props.styles.h2_font_size}px`,
-    '--h3-font-size': `${props.styles.h3_font_size}px`,
-    '--p-font-size': `${props.styles.p_font_size}px`,
+const homeStyles = computed(() => ({
+    '--home-h-text-color': props.styles.home_h_text_color,
+    '--home-p-text-color': props.styles.home_p_text_color,
+    '--home-h-font-family': `${props.styles.home_h_font_family}, sans-serif`,
+    '--home-p-font-family': `${props.styles.home_p_font_family}, sans-serif`,
+    '--home-h1-font-size': `${props.styles.home_h1_font_size}px`,
+    '--home-h2-font-size': `${props.styles.home_h2_font_size}px`,
+    '--home-h3-font-size': `${props.styles.home_h3_font_size}px`,
+    '--home-p-font-size': `${props.styles.home_p_font_size}px`,
+}));
+
+const bodyStyles = computed(() => ({
+    '--body-h-text-color': props.styles.body_h_text_color,
+    '--body-p-text-color': props.styles.body_p_text_color,
+    '--body-h-font-family': `${props.styles.body_h_font_family}, sans-serif`,
+    '--body-p-font-family': `${props.styles.body_p_font_family}, sans-serif`,
+    '--body-h1-font-size': `${props.styles.body_h1_font_size}px`,
+    '--body-h2-font-size': `${props.styles.body_h2_font_size}px`,
+    '--body-h3-font-size': `${props.styles.body_h3_font_size}px`,
+    '--body-p-font-size': `${props.styles.body_p_font_size}px`,
+}));
+
+const homeTheme = computed(() => ({
+    h_text_color: props.styles.home_h_text_color,
+    p_text_color: props.styles.home_p_text_color,
+    h_font_family: props.styles.home_h_font_family,
+    p_font_family: props.styles.home_p_font_family,
+    h1_font_size: props.styles.home_h1_font_size,
+    h2_font_size: props.styles.home_h2_font_size,
+    h3_font_size: props.styles.home_h3_font_size,
+    p_font_size: props.styles.home_p_font_size,
+}));
+
+const bodyTheme = computed(() => ({
+    h_text_color: props.styles.body_h_text_color,
+    p_text_color: props.styles.body_p_text_color,
+    h_font_family: props.styles.body_h_font_family,
+    p_font_family: props.styles.body_p_font_family,
+    h1_font_size: props.styles.body_h1_font_size,
+    h2_font_size: props.styles.body_h2_font_size,
+    h3_font_size: props.styles.body_h3_font_size,
+    p_font_size: props.styles.body_p_font_size,
 }));
 </script>
 
 <style lang="scss" scoped>
-::v-deep h1, ::v-deep h2, ::v-deep h3, ::v-deep h4, ::v-deep h5, ::v-deep h6 {
-    color: var(--h-text-color);
-    font-family: var(--h-font-family);
-}
-
-::v-deep h1 { font-size: var(--h1-font-size); }
-::v-deep h2 { font-size: var(--h2-font-size); }
-::v-deep h3 { font-size: var(--h3-font-size); }
-
-::v-deep p, ::v-deep div {
-    color: var(--p-text-color);
-    font-family: var(--p-font-family);
-    font-size: var(--p-font-size);
-}
-
 .page-container {
     @media (min-width: 768px) {
         display: flex;
@@ -86,6 +103,21 @@ const globalStyles = computed(() => ({
         height: 100vh;
         overflow: hidden;
     }
+
+    ::v-deep h1, ::v-deep h2, ::v-deep h3, ::v-deep h4, ::v-deep h5, ::v-deep h6 {
+        color: var(--home-h-text-color);
+        font-family: var(--home-h-font-family);
+    }
+
+    ::v-deep h1 { font-size: var(--home-h1-font-size); }
+    ::v-deep h2 { font-size: var(--home-h2-font-size); }
+    ::v-deep h3 { font-size: var(--home-h3-font-size); }
+
+    ::v-deep p, ::v-deep div {
+        color: var(--home-p-text-color);
+        font-family: var(--home-p-font-family);
+        font-size: var(--home-p-font-size);
+    }
 }
 
 .scrollable-section {
@@ -94,6 +126,21 @@ const globalStyles = computed(() => ({
         height: 100vh;
         overflow-y: auto;
         padding: 2rem;
+    }
+
+    ::v-deep h1, ::v-deep h2, ::v-deep h3, ::v-deep h4, ::v-deep h5, ::v-deep h6 {
+        color: var(--body-h-text-color);
+        font-family: var(--body-h-font-family);
+    }
+
+    ::v-deep h1 { font-size: var(--body-h1-font-size); }
+    ::v-deep h2 { font-size: var(--body-h2-font-size); }
+    ::v-deep h3 { font-size: var(--body-h3-font-size); }
+
+    ::v-deep p, ::v-deep div {
+        color: var(--body-p-text-color);
+        font-family: var(--body-p-font-family);
+        font-size: var(--body-p-font-size);
     }
 }
 

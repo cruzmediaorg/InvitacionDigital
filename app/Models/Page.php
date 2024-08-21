@@ -14,7 +14,13 @@ class Page extends Model
 {
     use SoftDeletes, GenerateUniqueSlugTrait;
 
-    protected $fillable = ['title', 'slug', 'user_id', 'pages_type_id', 'theme_id', 'content', 'text_color', 'background_color', 'font_family'];
+    protected $fillable = [
+        'title', 'slug', 'user_id', 'pages_type_id', 'theme_id', 'content',
+        'home_h_text_color', 'home_p_text_color', 'home_h_font_family', 'home_p_font_family',
+        'home_h1_font_size', 'home_h2_font_size', 'home_h3_font_size', 'home_p_font_size',
+        'body_h_text_color', 'body_p_text_color', 'body_h_font_family', 'body_p_font_family',
+        'body_h1_font_size', 'body_h2_font_size', 'body_h3_font_size', 'body_p_font_size',
+    ];
 
     protected $casts = [
         'content' => 'array',
@@ -92,25 +98,17 @@ class Page extends Model
     public function getEffectiveStyles(): array
     {
         $themeStyles = $this->theme->only([
-            'h_text_color',
-            'p_text_color',
-            'h_font_family',
-            'p_font_family',
-            'h1_font_size',
-            'h2_font_size',
-            'h3_font_size',
-            'p_font_size',
+            'home_h_text_color', 'home_p_text_color', 'home_h_font_family', 'home_p_font_family',
+            'home_h1_font_size', 'home_h2_font_size', 'home_h3_font_size', 'home_p_font_size',
+            'body_h_text_color', 'body_p_text_color', 'body_h_font_family', 'body_p_font_family',
+            'body_h1_font_size', 'body_h2_font_size', 'body_h3_font_size', 'body_p_font_size',
         ]);
 
         $pageStyles = $this->only([
-            'h_text_color',
-            'p_text_color',
-            'h_font_family',
-            'p_font_family',
-            'h1_font_size',
-            'h2_font_size',
-            'h3_font_size',
-            'p_font_size',
+            'home_h_text_color', 'home_p_text_color', 'home_h_font_family', 'home_p_font_family',
+            'home_h1_font_size', 'home_h2_font_size', 'home_h3_font_size', 'home_p_font_size',
+            'body_h_text_color', 'body_p_text_color', 'body_h_font_family', 'body_p_font_family',
+            'body_h1_font_size', 'body_h2_font_size', 'body_h3_font_size', 'body_p_font_size',
         ]);
 
         return array_merge(

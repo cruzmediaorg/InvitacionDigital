@@ -31,7 +31,7 @@
           :src="imageUrl"
           @change="onChange"
           :stencil-props="{
-            aspectRatio: 1
+            aspectRatio: 16 / 9
           }"
           ref="cropperRef"
         />

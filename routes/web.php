@@ -45,4 +45,5 @@ Route::middleware([
     Route::delete('pages.blocks.delete-image', [ImageBlockFieldController::class, 'destroy'])->name('blocks.delete-image');
     Route::put('/pages/{page}/blocks/{block}/settings', [BlockController::class, 'updateSettings'])
         ->name('pages.blocks.update-settings');
+    Route::put('/pages/{page}/update-theme', [PageController::class, 'updateTheme'])->name('pages.update-theme');
 });

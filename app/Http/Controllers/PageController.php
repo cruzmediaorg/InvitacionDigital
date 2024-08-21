@@ -53,7 +53,7 @@ class PageController extends Controller
     public function edit(Page $page)
     {
         return Inertia::render('Pages/Edit', [
-            'page' => $page->load(['blocks.fields', 'blocks.type']),
+            'page' => $page->load(['blocks.fields', 'blocks.type', 'theme']),
         ]);
     }
 
@@ -63,6 +63,36 @@ class PageController extends Controller
     public function update(Request $request, Page $page)
     {
         //
+    }
+
+    /**
+     * Update the theme for the specified resource.
+     */
+    public function updateTheme(Request $request, Page $page)
+    {
+        $validated = $request->validate([
+            'theme_id' => 'nullable|exists:themes,id',
+            'home_h_text_color' => 'nullable|string',
+            'home_p_text_color' => 'nullable|string',
+            'home_h_font_family' => 'nullable|string',
+            'home_p_font_family' => 'nullable|string',
+            'home_h1_font_size' => 'nullable|integer',
+            'home_h2_font_size' => 'nullable|integer',
+            'home_h3_font_size' => 'nullable|integer',
+            'home_p_font_size' => 'nullable|integer',
+            'body_h_text_color' => 'nullable|string',
+            'body_p_text_color' => 'nullable|string',
+            'body_h_font_family' => 'nullable|string',
+            'body_p_font_family' => 'nullable|string',
+            'body_h1_font_size' => 'nullable|integer',
+            'body_h2_font_size' => 'nullable|integer',
+            'body_h3_font_size' => 'nullable|integer',
+            'body_p_font_size' => 'nullable|integer',
+        ]);
+
+        $page->update($validated);
+
+        return back()->with('success', 'Theme updated successfully.');
     }
 
     /**
