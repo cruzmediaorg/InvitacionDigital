@@ -1,11 +1,12 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 
 const props = defineProps(['page']);
+const emit = defineEmits(['update:modelValue']);
 
 const form = ref({
   theme_id: props.page.theme_id,
@@ -27,6 +28,10 @@ const form = ref({
   body_p_font_size: props.page.body_p_font_size || props.page.theme?.body_p_font_size,
 });
 
+watch(form, (newValue) => {
+  emit('update:modelValue', newValue);
+}, { deep: true });
+
 const updateTheme = () => {
   router.put(route('pages.update-theme', props.page.slug), form.value, {
     preserveState: true,
@@ -36,7 +41,6 @@ const updateTheme = () => {
 </script>
 
 <template>
-    {{ page.theme }}
   <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
     <form @submit.prevent="updateTheme">
       <h2 class="text-2xl font-bold mb-4">Home Styles</h2>

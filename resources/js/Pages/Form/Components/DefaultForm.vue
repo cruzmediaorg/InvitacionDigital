@@ -1,6 +1,6 @@
 <script setup>
 import AuthLayout from "@/Layouts/AuthLayout.vue";
-import { ref } from 'vue';
+import { ref, computed, watch } from 'vue';
 import BorderlessInput from "@/Components/BorderlessInput.vue";
 import GoldenButton from "@/Components/GoldenButton.vue";
 import {router } from "@inertiajs/vue3";
@@ -10,6 +10,7 @@ import ImageUploader from "@/Components/ImageUploader.vue";
 import DialogModal from "@/Components/DialogModal.vue";
 import SecondaryButton from "@/Components/SecondaryButton.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
+import PagePreview from '@/Components/PagePreview.vue';
 
 const props = defineProps(['page','block']);
 const formData = ref([]);
@@ -49,7 +50,10 @@ const submit = () => {
         block_types_field_id: field.id,
         value: field.value
     }));
-    router.put(route('pages.blocks.update', {page: props.page.slug, block: props.block.id}), { fields: formDataToSubmit });
+    router.put(route('pages.blocks.update', {page: props.page.slug, block: props.block.id}), { fields: formDataToSubmit }, {
+        preserveState: true,
+        preserveScroll: true,
+    });
 }
 
 const getFieldValue = (key) => {
@@ -91,63 +95,86 @@ const saveSettings = () => {
     },
   });
 };
+
+const updatedBlock = computed(() => ({
+  ...props.block,
+  fields: existingFields.value,
+  title: blockTitle.value,
+  is_visible: isVisible.value
+}));
+
+const updatedPage = computed(() => ({
+  ...props.page,
+  blocks: props.page.blocks?.map(b => b.id === props.block.id ? updatedBlock.value : b)
+}));
+
+watch(existingFields, () => {
+    console.log('existingFields', existingFields.value);
+}, { deep: true });
 </script>
 
 <template>
     <AuthLayout title="Edit Block">
-        <button @click="openSettingsModal" class="absolute top-4 right-4 p-2 rounded-full bg-gray-200 hover:bg-gray-300">
-            <i class="pi pi-cog"></i>
-        </button>
-        <form @submit.prevent="submit">
-            <h1 class="text-2xl font-bold mb-4">{{ block.title }}</h1>
-            <div v-for="field in existingFields" :key="field.id" class="mb-4">
-                <label :for="field.key" class="block mb-2 font-bold">{{ field.name }}</label>
-                <template v-if="field.type === 'array'">
-                    <QAEditor v-if="field.key === 'questions'"
-                        :value="JSON.parse(field.value || '[]')"
-                        @input="updateArrayField(field.key, $event)"
-                    />
-                    <EventsEditor v-if="field.key === 'events'"
-                        :value="JSON.parse(field.value || '[]')"
-                        @input="updateArrayField(field.key, $event)"
-                    />
-                </template>
-                <template v-else-if="field.type === 'Image'">
-                    <ImageUploader :id="field.fieldId" :value="field.value" @input="setFieldValue(field.key, $event)" />
-                </template>
-                <template v-else>
-                    <BorderlessInput
-                        :id="field.key"
-                        :type="getFieldType(field.type)"
-                        :value="field.value"
-                        @input="setFieldValue(field.key, $event.target.value)"
-                        :required="field.required"
-                        :placeholder="field.default"
-                    />
-                </template>
+        <div class="flex">
+            <div class="w-1/2 p-4 overflow-y-auto">
+                <button @click="openSettingsModal" class="absolute top-4 right-4 p-2 rounded-full bg-gray-200 hover:bg-gray-300">
+                    <i class="pi pi-cog"></i>
+                </button>
+                <form @submit.prevent="submit">
+                    <h1 class="text-2xl font-bold mb-4">{{ block.title }}</h1>
+                    <div v-for="field in existingFields" :key="field.id" class="mb-4">
+                        <label :for="field.key" class="block mb-2 font-bold">{{ field.name }}</label>
+                        <template v-if="field.type === 'array'">
+                            <QAEditor v-if="field.key === 'questions'"
+                                :value="JSON.parse(field.value || '[]')"
+                                @input="updateArrayField(field.key, $event)"
+                            />
+                            <EventsEditor v-if="field.key === 'events'"
+                                :value="JSON.parse(field.value || '[]')"
+                                @input="updateArrayField(field.key, $event)"
+                            />
+                        </template>
+                        <template v-else-if="field.type === 'Image'">
+                            <ImageUploader :id="field.fieldId" :value="field.value" @input="setFieldValue(field.key, $event)" />
+                        </template>
+                        <template v-else>
+                            <BorderlessInput
+                                :id="field.key"
+                                :type="getFieldType(field.type)"
+                                :value="field.value"
+                                @input="setFieldValue(field.key, $event.target.value)"
+                                :required="field.required"
+                                :placeholder="field.default"
+                            />
+                        </template>
+                    </div>
+                    <GoldenButton type="submit">
+                        Guardar cambios
+                    </GoldenButton>
+                </form>
+                <DialogModal :show="showSettingsModal" @close="closeSettingsModal">
+                    <template #title>
+                        Block Settings
+                    </template>
+                    <template #content>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700">Block Title</label>
+                            <input v-model="blockTitle" type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                        </div>
+                        <div class="flex items-center">
+                            <input v-model="isVisible" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <label class="ml-2 block text-sm text-gray-900">Visible</label>
+                        </div>
+                    </template>
+                    <template #footer>
+                        <SecondaryButton @click="closeSettingsModal">Cancel</SecondaryButton>
+                        <PrimaryButton class="ml-3" @click="saveSettings">Save</PrimaryButton>
+                    </template>
+                </DialogModal>
             </div>
-            <GoldenButton type="submit">
-                Guardar cambios
-            </GoldenButton>
-        </form>
-        <DialogModal :show="showSettingsModal" @close="closeSettingsModal">
-            <template #title>
-                Block Settings
-            </template>
-            <template #content>
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700">Block Title</label>
-                    <input v-model="blockTitle" type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                </div>
-                <div class="flex items-center">
-                    <input v-model="isVisible" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                    <label class="ml-2 block text-sm text-gray-900">Visible</label>
-                </div>
-            </template>
-            <template #footer>
-                <SecondaryButton @click="closeSettingsModal">Cancel</SecondaryButton>
-                <PrimaryButton class="ml-3" @click="saveSettings">Save</PrimaryButton>
-            </template>
-        </DialogModal>
+            <div class="w-1/2 min-h-screen p-4">
+                <PagePreview :page="updatedPage" :blocks="updatedPage.blocks" :styles="page" />
+            </div>
+        </div>
     </AuthLayout>
 </template>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Block;
 use App\Models\Page;
 use App\Models\PagesType;
 use Illuminate\Http\Request;
@@ -38,12 +39,31 @@ class PageController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Page $page)
+    public function show(Page $page, Request $request)
     {
+        if ($request->has('preview')) {
+            $blocks = json_decode($request->input('blocks'), true);
+            $styles = json_decode($request->input('styles'), true);
+            
+            // Apply the preview changes
+            $page->blocks = collect($blocks)->map(function ($block) {
+                return new Block($block);
+            });
+            $page->load(['blocks.fields', 'blocks.type', 'blocks.blocksTypeDesign', 'theme']);
+            $page->fill($styles);
+            
+        } else {
+            $page->load(['blocks.fields', 'blocks.type', 'blocks.blocksTypeDesign', 'theme']);
+        }
+
         return Inertia::render('Pages/Public/Show', [
-            'page' => $page->load(['blocks.fields', 'blocks.type', 'blocks.blocksTypeDesign', 'theme']),
-            'styles' => $page->getEffectiveStyles(),
-            'theme' => $page->theme->path, // Add this line to pass the theme path
+            'page' => $page,
+            'styles' => $page->only([
+                'home_h_text_color', 'home_p_text_color', 'home_h_font_family', 'home_p_font_family',
+                'home_h1_font_size', 'home_h2_font_size', 'home_h3_font_size', 'home_p_font_size',
+                'body_h_text_color', 'body_p_text_color', 'body_h_font_family', 'body_p_font_family',
+                'body_h1_font_size', 'body_h2_font_size', 'body_h3_font_size', 'body_p_font_size',
+            ]),
         ]);
     }
 

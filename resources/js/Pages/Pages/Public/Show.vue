@@ -26,21 +26,21 @@ import { defineAsyncComponent, computed } from 'vue';
 const props = defineProps(['page', 'styles']);
 
 const homeBlock = computed(() => {
-    return props.page.blocks.find(block => block.type.name === 'Home');
+    return props.page.blocks.find(block => block.type?.name === 'Home');
 });
 
 const otherBlocks = computed(() => {
     return props.page.blocks
-        .filter(block => block.type.name !== 'Home')
+        .filter(block => block.type?.name !== 'Home')
         .sort((a, b) => a.order - b.order);
 });
 
 const getComponentName = (block) => {
-    return block.blocks_type_design?.component || block.type.page_component;
+    return block.blocks_type_design?.component || block.type?.page_component;
 };
 
 const getComponent = (componentName) => {
-    return defineAsyncComponent(() => import(`./Themes/${props.page.theme.name}/Components/${componentName}`));
+    return defineAsyncComponent(() => import(`./Themes/${props.page.theme?.name}/Components/${componentName}`));
 };
 
 const homeStyles = computed(() => ({
