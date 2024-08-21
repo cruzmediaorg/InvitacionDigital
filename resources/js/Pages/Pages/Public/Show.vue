@@ -1,4 +1,11 @@
 <template>
+    <div v-if="!page.is_published && !isMobileView" class="fixed top-0 bg-green-800 text-white font-bold uppercase flex left-0 z-10 w-full justify-center py-2 border-b border-gray-200 items-center min-w-[100vw]">
+        <p>
+            <i class="pi pi-lock"></i>
+            This page is not public accessible yet.
+        </p>
+    </div>
+
     <div class="page-container" :class="{ 'mobile-view': isMobileView }">
         <div class="home-section" :style="homeStyles">
             <component

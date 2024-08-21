@@ -20,10 +20,15 @@ class Page extends Model
         'home_h1_font_size', 'home_h2_font_size', 'home_h3_font_size', 'home_p_font_size',
         'body_h_text_color', 'body_p_text_color', 'body_h_font_family', 'body_p_font_family',
         'body_h1_font_size', 'body_h2_font_size', 'body_h3_font_size', 'body_p_font_size',
+        'published_at',
     ];
 
     protected $casts = [
         'content' => 'array',
+    ];
+
+    protected $appends = [
+        'is_published',
     ];
 
     /**
@@ -115,5 +120,15 @@ class Page extends Model
             $themeStyles,
             array_filter($pageStyles, fn($value) => $value !== null)
         );
+    }
+
+    public function isPublished(): bool
+    {
+        return $this->published_at !== null;
+    }
+
+    public function getIsPublishedAttribute(): bool
+    {
+        return $this->isPublished();
     }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\UpdateBlockOrderController;
 use App\Http\Middleware\OnboardingRequired;
+use App\Http\Middleware\PageNotPublished;
 use App\Models\Page;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -29,15 +30,18 @@ Route::middleware([
     'verified',
 ])->group(function () {
 
-
-    //
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard', [
             'pages' => Auth::user()->pages()->with('blocks')->get(),
         ]);
     })->name('dashboard')->middleware(OnboardingRequired::class);
+    
+    Route::get('/page-not-published', function () {
+        return Inertia::render('Pages/NotPublished');
+    })->name('pages.not.published');
 
-    Route::resource('pages', PageController::class);
+    Route::resource('pages', PageController::class)->except('show');
+    Route::get('/pages/{page}', [PageController::class, 'show'])->name('pages.show')->middleware(PageNotPublished::class);
     Route::resource('onboarding', OnboardingController::class);
     Route::resource('pages.blocks', BlockController::class)->only(['update', 'edit', 'store']);
     Route::post('pages.blocks.order', UpdateBlockOrderController::class)->name('blocks.order.update');

@@ -1,9 +1,11 @@
 <template>
-  <div class="page-preview">
+  <div class="page-preview"> 
     <div class="preview-controls">
-      <button @click="setView('mobile')" :class="{ active: currentView === 'mobile' }">Mobile</button>
-      <button @click="setView('desktop')">Full screen</button>
-      <button @click="togglePreview">{{ isPreviewVisible ? 'Hide' : 'Show' }}</button>
+      <button @click="setView('mobile')" :class="{ active: currentView === 'mobile' }"><i class="pi pi-mobile"></i></button>
+      <button @click="setView('desktop')"><i class="pi pi-expand"></i></button>
+      <button @click="togglePreview">
+        <i :class="isPreviewVisible ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+      </button>
     </div>
     <div v-if="isPreviewVisible && currentView === 'mobile'" class="preview-container mobile">
       <Show :page="pageWithBlocks" :styles="styles" :isMobileView="true" />
@@ -22,7 +24,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 import Show from '@/Pages/Pages/Public/Show.vue';
 
 const props = defineProps({
@@ -43,12 +45,34 @@ const setView = (view) => {
   currentView.value = view;
   if (view === 'desktop') {
     isPreviewVisible.value = true;
+    currentView.value = 'desktop';
   }
+
+  isPreviewVisible.value = true;
 };
 
 const togglePreview = () => {
   isPreviewVisible.value = !isPreviewVisible.value;
+  if (!isPreviewVisible.value) {
+    currentView.value = null;
+  } else {
+    currentView.value = 'mobile';
+  }
 };
+
+const handleKeyDown = (event) => {
+  if (event.key === 'Escape' && currentView.value === 'desktop') {
+    setView('mobile');
+  }
+};
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeyDown);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown);
+});
 </script>
 
 <style scoped>

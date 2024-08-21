@@ -1,12 +1,22 @@
 <script setup>
 import { ref, watch } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
+import { ColorPicker } from 'vue-color-kit'
+import 'vue-color-kit/dist/vue-color-kit.css'
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import { router } from '@inertiajs/vue3';
 
 const props = defineProps(['page']);
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'theme-updated']);
+
+const fonts = [
+  'Allura', 'Alex Brush', 'Cormorant Garamond', 'Crafty Lover', 'DM Serif',
+  'French Press', 'Helostar', 'Grance', 'Gresthine', 'Hujan',
+  'Jost', 'Julius Sans One', 'Lorina Script', 'Metafors', 'Neuton Light',
+  'Playfair', 'Quicksand'
+];
 
 const form = ref({
   theme_id: props.page.theme_id,
@@ -32,86 +42,178 @@ watch(form, (newValue) => {
   emit('update:modelValue', newValue);
 }, { deep: true });
 
-const updateTheme = () => {
-  router.put(route('pages.update-theme', props.page.slug), form.value, {
-    preserveState: true,
-    preserveScroll: true,
-  });
+const updateColor = (color, property) => {
+  form.value[property] = color.hex;
+};
+
+const updateFontSize = (value, property) => {
+  form.value[property] = value;
+};
+
+const updateTheme = async () => {
+  router.reload({only: ['page']})
+  console.log('theme updated');
 };
 </script>
 
 <template>
   <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
     <form @submit.prevent="updateTheme">
-      <h2 class="text-2xl font-bold mb-4">Home Styles</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div>
-          <InputLabel for="home_h_text_color" value="Home Heading Text Color" />
-          <TextInput id="home_h_text_color" v-model="form.home_h_text_color" type="color" class="mt-1 block w-full" />
+      <h2 class="text-2xl font-bold mb-4">Heading</h2>
+      <div class="space-y-4 mb-8">
+        <div class="flex items-center justify-between">
+          <InputLabel for="home_h_text_color" value="Header Text Color" class="w-1/2" />
+          <Popover class="relative w-1/2 flex justify-end">
+            <PopoverButton class="w-fit flex items-center justify-between border border-gray-300 rounded-md p-2">
+              
+              <div class="w-6 h-6 rounded-full border" :style="{ backgroundColor: form.home_h_text_color }"></div>
+            </PopoverButton>
+            <PopoverPanel class="absolute z-10 right-0 mt-2">
+              <ColorPicker
+                :color="form.home_h_text_color"
+                @change-color="color => updateColor(color, 'home_h_text_color')"
+                :sucker-hide="true"
+                :sucker-canvas="null"
+                :sucker-area="null"
+              />
+            </PopoverPanel>
+          </Popover>
         </div>
-        <div>
-          <InputLabel for="home_p_text_color" value="Home Paragraph Text Color" />
-          <TextInput id="home_p_text_color" v-model="form.home_p_text_color" type="color" class="mt-1 block w-full" />
+        <div class="flex items-center justify-between">
+          <InputLabel for="home_p_text_color" value="Paragraph Text Color" class="w-1/2" />
+          <Popover class="relative w-1/2 flex justify-end">
+            <PopoverButton class="w-fit flex items-center justify-between border border-gray-300 rounded-md p-2">
+              
+              <div class="w-6 h-6 rounded-full border " :style="{ backgroundColor: form.home_p_text_color }"></div>
+            </PopoverButton>
+            <PopoverPanel class="absolute z-10 right-0 mt-2">
+              <ColorPicker
+                :color="form.home_p_text_color"
+                @change-color="color => updateColor(color, 'home_p_text_color')"
+                :sucker-hide="true"
+                :sucker-canvas="null"
+                :sucker-area="null"
+              />
+            </PopoverPanel>
+          </Popover>
         </div>
-        <div>
-          <InputLabel for="home_h_font_family" value="Home Heading Font Family" />
-          <TextInput id="home_h_font_family" v-model="form.home_h_font_family" type="text" class="mt-1 block w-full" />
+        <div class="flex items-center justify-between">
+          <InputLabel for="home_h_font_family" value="Home Heading Font Family" class="w-1/2" />
+          <TextInput id="home_h_font_family" v-model="form.home_h_font_family" type="text" class="w-1/2" />
         </div>
-        <div>
-          <InputLabel for="home_p_font_family" value="Home Paragraph Font Family" />
-          <TextInput id="home_p_font_family" v-model="form.home_p_font_family" type="text" class="mt-1 block w-full" />
+        <div class="flex items-center justify-between">
+          <InputLabel for="home_p_font_family" value="Paragraph Font Family" class="w-1/2" />
+          <TextInput id="home_p_font_family" v-model="form.home_p_font_family" type="text" class="w-1/2" />
         </div>
-        <div>
-          <InputLabel for="home_h1_font_size" value="Home H1 Font Size" />
-          <TextInput id="home_h1_font_size" v-model="form.home_h1_font_size" type="number" class="mt-1 block w-full" />
+        <div class="flex items-center justify-between">
+          <InputLabel for="home_h1_font_size" value="Heading Font Size" class="w-1/2" />
+          <div class="flex items-center w-1/2">
+            <input
+              type="range"
+              id="home_h1_font_size"
+              v-model="form.home_h1_font_size"
+              min="17"
+              max="40"
+              step="1"
+              class="w-3/4 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              @input="updateFontSize($event.target.value, 'home_h1_font_size')"
+            />
+          </div>
         </div>
-        <div>
-          <InputLabel for="home_h2_font_size" value="Home H2 Font Size" />
-          <TextInput id="home_h2_font_size" v-model="form.home_h2_font_size" type="number" class="mt-1 block w-full" />
-        </div>
-        <div>
-          <InputLabel for="home_h3_font_size" value="Home H3 Font Size" />
-          <TextInput id="home_h3_font_size" v-model="form.home_h3_font_size" type="number" class="mt-1 block w-full" />
-        </div>
-        <div>
-          <InputLabel for="home_p_font_size" value="Home Paragraph Font Size" />
-          <TextInput id="home_p_font_size" v-model="form.home_p_font_size" type="number" class="mt-1 block w-full" />
+       
+        <div class="flex items-center justify-between">
+          <InputLabel for="home_p_font_size" value="Paragraph Font Size" class="w-1/2" />
+          <div class="flex items-center w-1/2">
+            <input
+              type="range"
+              id="home_p_font_size"
+              v-model="form.home_p_font_size"
+              min="17"
+              max="40"
+              step="1"
+              class="w-3/4 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              @input="updateFontSize($event.target.value, 'home_p_font_size')"
+            />
+          </div>
         </div>
       </div>
 
-      <h2 class="text-2xl font-bold mb-4">Body Styles</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <InputLabel for="body_h_text_color" value="Body Heading Text Color" />
-          <TextInput id="body_h_text_color" v-model="form.body_h_text_color" type="color" class="mt-1 block w-full" />
+      <h2 class="text-2xl font-bold mb-4">Body</h2>
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <InputLabel for="body_h_text_color" value="Headings Text Color" class="w-1/2" />
+          <Popover class="relative w-1/2 flex justify-end">
+            <PopoverButton class="w-fit flex items-center justify-between border border-gray-300 rounded-md p-2">
+              
+              <div class="w-6 h-6 rounded-full border" :style="{ backgroundColor: form.body_h_text_color }"></div>
+            </PopoverButton>
+            <PopoverPanel class="absolute z-10 right-0 mt-2">
+              <ColorPicker
+                :color="form.body_h_text_color"
+                @change-color="color => updateColor(color, 'body_h_text_color')"
+                :sucker-hide="true"
+                :sucker-canvas="null"
+                :sucker-area="null"
+              />
+            </PopoverPanel>
+          </Popover>
         </div>
-        <div>
-          <InputLabel for="body_p_text_color" value="Body Paragraph Text Color" />
-          <TextInput id="body_p_text_color" v-model="form.body_p_text_color" type="color" class="mt-1 block w-full" />
+        <div class="flex items-center justify-between">
+          <InputLabel for="body_p_text_color" value="Paragraph Text Color" class="w-1/2" />
+          <Popover class="relative w-1/2 flex justify-end">
+            <PopoverButton class="w-fit flex items-center justify-between border border-gray-300 rounded-md p-2">
+              
+              <div class="w-6 h-6 rounded-full border" :style="{ backgroundColor: form.body_p_text_color }"></div>
+            </PopoverButton>
+            <PopoverPanel class="absolute z-10 right-0 mt-2">
+              <ColorPicker
+                :color="form.body_p_text_color"
+                @change-color="color => updateColor(color, 'body_p_text_color')"
+                :sucker-hide="true"
+                :sucker-canvas="null"
+                :sucker-area="null"
+              />
+            </PopoverPanel>
+          </Popover>
         </div>
-        <div>
-          <InputLabel for="body_h_font_family" value="Body Heading Font Family" />
-          <TextInput id="body_h_font_family" v-model="form.body_h_font_family" type="text" class="mt-1 block w-full" />
+        <div class="flex items-center justify-between">
+          <InputLabel for="body_h_font_family" value="Headings Font Family" class="w-1/2" />
+          <TextInput id="body_h_font_family" v-model="form.body_h_font_family" type="text" class="w-1/2" />
         </div>
-        <div>
-          <InputLabel for="body_p_font_family" value="Body Paragraph Font Family" />
-          <TextInput id="body_p_font_family" v-model="form.body_p_font_family" type="text" class="mt-1 block w-full" />
+        <div class="flex items-center justify-between">
+          <InputLabel for="body_p_font_family" value="Paragraph Font Family" class="w-1/2" />
+          <TextInput id="body_p_font_family" v-model="form.body_p_font_family" type="text" class="w-1/2" />
         </div>
-        <div>
-          <InputLabel for="body_h1_font_size" value="Body H1 Font Size" />
-          <TextInput id="body_h1_font_size" v-model="form.body_h1_font_size" type="number" class="mt-1 block w-full" />
+        <div class="flex items-center justify-between">
+          <InputLabel for="body_h1_font_size" value="Headings Font Size" class="w-1/2" />
+          <div class="flex items-center w-1/2">
+            <input
+              type="range"
+              id="body_h1_font_size"
+              v-model="form.body_h1_font_size"
+              min="17"
+              max="40"
+              step="1"
+              class="w-3/4 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              @input="updateFontSize($event.target.value, 'body_h1_font_size')"
+            />
+          </div>
         </div>
-        <div>
-          <InputLabel for="body_h2_font_size" value="Body H2 Font Size" />
-          <TextInput id="body_h2_font_size" v-model="form.body_h2_font_size" type="number" class="mt-1 block w-full" />
-        </div>
-        <div>
-          <InputLabel for="body_h3_font_size" value="Body H3 Font Size" />
-          <TextInput id="body_h3_font_size" v-model="form.body_h3_font_size" type="number" class="mt-1 block w-full" />
-        </div>
-        <div>
-          <InputLabel for="body_p_font_size" value="Body Paragraph Font Size" />
-          <TextInput id="body_p_font_size" v-model="form.body_p_font_size" type="number" class="mt-1 block w-full" />
+  
+        <div class="flex items-center justify-between">
+          <InputLabel for="body_p_font_size" value="Paragraph Font Size" class="w-1/2" />
+          <div class="flex items-center w-1/2">
+            <input
+              type="range"
+              id="body_p_font_size"
+              v-model="form.body_p_font_size"
+              min="17"
+              max="40"
+              step="1"
+              class="w-3/4 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+              @input="updateFontSize($event.target.value, 'body_p_font_size')"
+            />
+          </div>
         </div>
       </div>
       <div class="mt-6">
@@ -120,3 +222,32 @@ const updateTheme = () => {
     </form>
   </div>
 </template>
+
+<style scoped>
+.color-picker {
+  width: 100%;
+  max-width: 250px;
+}
+
+input[type="range"] {
+  width: 75%;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #4CAF50;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #4CAF50;
+  cursor: pointer;
+  border-radius: 50%;
+}
+</style>

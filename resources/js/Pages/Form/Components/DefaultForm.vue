@@ -83,18 +83,6 @@ const closeSettingsModal = () => {
   showSettingsModal.value = false;
 };
 
-const saveSettings = () => {
-  router.put(route('pages.blocks.update-settings', { page: props.page.slug, block: props.block.id }), {
-    title: blockTitle.value,
-    is_visible: isVisible.value,
-  }, {
-    preserveState: true,
-    preserveScroll: true,
-    onSuccess: () => {
-      closeSettingsModal();
-    },
-  });
-};
 
 const updatedBlock = computed(() => ({
   ...props.block,
@@ -117,9 +105,11 @@ watch(existingFields, () => {
     <AuthLayout title="Edit Block">
         <div class="flex">
             <div class="w-1/2 p-4 overflow-y-auto">
-                <button @click="openSettingsModal" class="absolute top-4 right-4 p-2 rounded-full bg-gray-200 hover:bg-gray-300">
-                    <i class="pi pi-cog"></i>
+              <div class="absolute top-4 right-4 p-2 rounded-full bg-gray-200 hover:bg-gray-300">
+                <button>
+                    
                 </button>
+              </div>
                 <form @submit.prevent="submit">
                     <h1 class="text-2xl font-bold mb-4">{{ block.title }}</h1>
                     <div v-for="field in existingFields" :key="field.id" class="mb-4">
@@ -152,25 +142,6 @@ watch(existingFields, () => {
                         Guardar cambios
                     </GoldenButton>
                 </form>
-                <DialogModal :show="showSettingsModal" @close="closeSettingsModal">
-                    <template #title>
-                        Block Settings
-                    </template>
-                    <template #content>
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700">Block Title</label>
-                            <input v-model="blockTitle" type="text" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
-                        </div>
-                        <div class="flex items-center">
-                            <input v-model="isVisible" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                            <label class="ml-2 block text-sm text-gray-900">Visible</label>
-                        </div>
-                    </template>
-                    <template #footer>
-                        <SecondaryButton @click="closeSettingsModal">Cancel</SecondaryButton>
-                        <PrimaryButton class="ml-3" @click="saveSettings">Save</PrimaryButton>
-                    </template>
-                </DialogModal>
             </div>
             <div class="w-1/2 min-h-screen p-4">
                 <PagePreview :page="updatedPage" :blocks="updatedPage.blocks" :styles="page" />
