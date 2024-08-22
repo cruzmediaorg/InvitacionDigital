@@ -16,7 +16,8 @@ module.exports = {
   theme: {
     fontFamily: {
       sans: ["Lato"],
-      cormorant: ["Cormorant Garamond"]
+      cormorant: ["Cormorant Garamond"],
+      allura: ["Allura"],
     },
     container: {
       center: true,

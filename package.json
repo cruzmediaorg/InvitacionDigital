@@ -22,6 +22,7 @@
     },
     "dependencies": {
         "@headlessui/vue": "^1.7.22",
+        "@heroicons/vue": "^2.1.5",
         "class-variance-authority": "^0.7.0",
         "clsx": "^2.1.1",
         "lucide-vue-next": "^0.428.0",

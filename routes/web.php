@@ -23,6 +23,11 @@ use Inertia\Inertia;
 Route::get('/', function () {
     return redirect()->route('dashboard');
 });
+Route::get('/pages/{page}', [PageController::class, 'show'])->name('pages.show')->middleware(PageNotPublished::class);
+
+Route::get('/page-not-published', function () {
+    return Inertia::render('Pages/NotPublished');
+})->name('pages.not.published');
 
 Route::middleware([
     'auth:sanctum',
@@ -35,13 +40,10 @@ Route::middleware([
             'pages' => Auth::user()->pages()->with('blocks')->get(),
         ]);
     })->name('dashboard')->middleware(OnboardingRequired::class);
-    
-    Route::get('/page-not-published', function () {
-        return Inertia::render('Pages/NotPublished');
-    })->name('pages.not.published');
+
+
 
     Route::resource('pages', PageController::class)->except('show');
-    Route::get('/pages/{page}', [PageController::class, 'show'])->name('pages.show')->middleware(PageNotPublished::class);
     Route::resource('onboarding', OnboardingController::class);
     Route::resource('pages.blocks', BlockController::class)->only(['update', 'edit', 'store']);
     Route::post('pages.blocks.order', UpdateBlockOrderController::class)->name('blocks.order.update');

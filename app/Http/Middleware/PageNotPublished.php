@@ -15,9 +15,10 @@ class PageNotPublished
      */
     public function handle(Request $request, Closure $next):Response
     {
-        if (!$request->page->isPublished() && $request->user()->id !== $request->page->user_id) {
-            return redirect()->route('pages.not.published');
-        }
+        
+      if (!$request->page->isPublished() && $request->user()?->id !== $request->page->user_id) {
+        return redirect()->route('pages.not.published');
+      }
 
         return $next($request);
     }

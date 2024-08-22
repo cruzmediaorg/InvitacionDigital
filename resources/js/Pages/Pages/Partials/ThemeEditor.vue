@@ -6,6 +6,7 @@ import 'vue-color-kit/dist/vue-color-kit.css'
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
+import FontSelector from '@/Components/FontSelector.vue';
 import { router } from '@inertiajs/vue3';
 
 const props = defineProps(['page']);
@@ -99,11 +100,21 @@ const updateTheme = async () => {
         </div>
         <div class="flex items-center justify-between">
           <InputLabel for="home_h_font_family" value="Home Heading Font Family" class="w-1/2" />
-          <TextInput id="home_h_font_family" v-model="form.home_h_font_family" type="text" class="w-1/2" />
+          <FontSelector
+            id="home_h_font_family"
+            v-model="form.home_h_font_family"
+            :fonts="fonts"
+            class="w-1/2 "
+          />
         </div>
         <div class="flex items-center justify-between">
           <InputLabel for="home_p_font_family" value="Paragraph Font Family" class="w-1/2" />
-          <TextInput id="home_p_font_family" v-model="form.home_p_font_family" type="text" class="w-1/2" />
+          <FontSelector
+            id="home_p_font_family"
+            v-model="form.home_p_font_family"
+            :fonts="fonts"
+            class="w-1/2"
+          />
         </div>
         <div class="flex items-center justify-between">
           <InputLabel for="home_h1_font_size" value="Heading Font Size" class="w-1/2" />
@@ -178,11 +189,21 @@ const updateTheme = async () => {
         </div>
         <div class="flex items-center justify-between">
           <InputLabel for="body_h_font_family" value="Headings Font Family" class="w-1/2" />
-          <TextInput id="body_h_font_family" v-model="form.body_h_font_family" type="text" class="w-1/2" />
+          <FontSelector
+            id="body_h_font_family"
+            v-model="form.body_h_font_family"
+            :fonts="fonts"
+            class="w-1/2"
+          />
         </div>
         <div class="flex items-center justify-between">
           <InputLabel for="body_p_font_family" value="Paragraph Font Family" class="w-1/2" />
-          <TextInput id="body_p_font_family" v-model="form.body_p_font_family" type="text" class="w-1/2" />
+          <FontSelector
+            id="body_p_font_family"
+            v-model="form.body_p_font_family"
+            :fonts="fonts"
+            class="w-1/2"
+          />
         </div>
         <div class="flex items-center justify-between">
           <InputLabel for="body_h1_font_size" value="Headings Font Size" class="w-1/2" />
@@ -250,4 +271,5 @@ input[type="range"]::-moz-range-thumb {
   cursor: pointer;
   border-radius: 50%;
 }
+
 </style>

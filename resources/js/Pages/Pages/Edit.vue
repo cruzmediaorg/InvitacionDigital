@@ -7,11 +7,12 @@ import { ref, computed, watch } from 'vue';
 import { router } from '@inertiajs/vue3'
 import ThemeEditor from './Partials/ThemeEditor.vue';
 import PagePreview from '@/Components/PagePreview.vue';
-
+import { Switch } from '@headlessui/vue'
 const props = defineProps(['page'])
 const blocks = ref(props.page.blocks.sort((a, b) => a.order - b.order))
 const activeTab = ref('blocks');
 const styles = ref({ ...props.page });
+const isPublished = ref(!!props.page.published_at);
 
 function onDragEnd() {
   blocks.value.forEach((block, index) => {
@@ -31,6 +32,18 @@ function onDragEnd() {
 watch([blocks, styles], () => {
   // This will trigger a re-render of the preview when blocks or styles change
 }, { deep: true });
+
+function togglePublished() {
+  isPublished.value = !isPublished.value;
+  router.post(route('pages.toggle-visibility', page.id), {
+    published: isPublished.value
+  });
+}
+
+function downloadQRCode() {
+  // Implement QR code download logic here
+  console.log('Downloading QR code...');
+}
 </script>
 
 <template>
@@ -47,6 +60,9 @@ watch([blocks, styles], () => {
             </li>
             <li class="mr-2">
               <a href="#" @click.prevent="activeTab = 'theme'" :class="{'border-b-2 border-golden': activeTab === 'theme'}" class="inline-block p-4 text-gray-600 hover:text-gray-800">Theme</a>
+            </li>
+            <li class="mr-2">
+              <a href="#" @click.prevent="activeTab = 'settings'" :class="{'border-b-2 border-golden': activeTab === 'settings'}" class="inline-block p-4 text-gray-600 hover:text-gray-800">Settings</a>
             </li>
           </ul>
         </div>
@@ -76,6 +92,35 @@ watch([blocks, styles], () => {
         <!-- Theme tab content -->
         <div v-if="activeTab === 'theme'">
           <ThemeEditor :page="page" v-model="styles" />
+        </div>
+
+        <!-- Settings tab content -->
+        <div v-if="activeTab === 'settings'" class="space-y-6">
+          <div class="flex items-center justify-between">
+            <span class="text-lg font-medium text-gray-900">Website is {{ isPublished ? 'published' : 'unpublished' }}</span>
+            <Switch
+              v-model="isPublished"
+              @change="togglePublished"
+              :class="isPublished ? 'bg-blue-600' : 'bg-gray-200'"
+              class="relative inline-flex h-6 w-11 items-center rounded-full"
+            >
+              <span class="sr-only">Toggle publication</span>
+              <span
+                :class="isPublished ? 'translate-x-6' : 'translate-x-1'"
+                class="inline-block h-4 w-4 transform rounded-full bg-white transition"
+              />
+            </Switch>
+          </div>
+          
+          <div>
+            <h3 class="text-lg font-medium text-gray-900">Your URL</h3>
+            <p class="mt-1 text-sm text-gray-600">{{ route('pages.show', page.slug) }}</p>
+          </div>
+          
+          <div>
+            <h3 class="text-lg font-medium text-gray-900">Website QR code</h3>
+            <PrimaryButton @click="downloadQRCode" class="mt-2">Download QR Code</PrimaryButton>
+          </div>
         </div>
       </div>
       
