@@ -41,6 +41,8 @@ class User extends Authenticatable
         'remember_token',
         'two_factor_recovery_codes',
         'two_factor_secret',
+        'created_at',
+        'updated_at',
     ];
 
     /**
@@ -82,8 +84,11 @@ class User extends Authenticatable
 
     public function onboardingComplete()
     {
-        // When user has a default page and that page has blocks
         return $this->defaultPage()?->blocks()->exists();
+    }
+
+    public function reservation() {
+        return $this->hasOneThrough(Reservation::class, Page::class);
     }
 
 

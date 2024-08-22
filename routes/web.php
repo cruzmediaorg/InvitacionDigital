@@ -4,6 +4,7 @@ use App\Http\Controllers\BlockController;
 use App\Http\Controllers\ImageBlockFieldController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PageController;
+use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\UpdateBlockOrderController;
 use App\Http\Middleware\OnboardingRequired;
 use App\Http\Middleware\PageNotPublished;
@@ -56,4 +57,10 @@ Route::middleware([
     // Images
     Route::post('pages.blocks.upload-image', [ImageBlockFieldController::class, 'store'])->name('blocks.upload-image');
     Route::delete('pages.blocks.delete-image', [ImageBlockFieldController::class, 'destroy'])->name('blocks.delete-image');
+
+
+    /*
+    * RSVP
+    */
+    Route::resource('reservations', ReservationController::class)->only(['index', 'update']);
 });

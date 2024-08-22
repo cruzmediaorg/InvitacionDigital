@@ -58,6 +58,8 @@ class CreateWeddingPage
             }
         }
 
+        CreateReservationDummyData::for($page);
+
         return $page;
     }
 }

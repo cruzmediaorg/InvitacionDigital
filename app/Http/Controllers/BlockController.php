@@ -18,6 +18,7 @@ class BlockController extends Controller
         return Inertia::render($block->type->form_component, [
             'page' => $page->load(['blocks.fields', 'blocks.type', 'theme']),
             'block' => $block->load('fields', 'type.blockTypesFields'),
+            'styles' => $page->getEffectiveStyles(),
         ]);
     }
 

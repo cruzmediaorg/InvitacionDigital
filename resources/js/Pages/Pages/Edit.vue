@@ -1,5 +1,4 @@
 <script setup>
-import AppLayout from "@/Layouts/AppLayout.vue";
 import AuthLayout from "@/Layouts/AuthLayout.vue";
 import PrimaryButton from "@/Components/PrimaryButton.vue";
 import draggable from 'vuedraggable'

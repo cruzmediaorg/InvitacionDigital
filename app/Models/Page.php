@@ -131,4 +131,8 @@ class Page extends Model
     {
         return $this->isPublished();
     }
+
+    public function reservation() {
+        return $this->hasOne(Reservation::class);
+    }
 }

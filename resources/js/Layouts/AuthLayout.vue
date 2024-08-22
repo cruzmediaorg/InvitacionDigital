@@ -44,7 +44,7 @@ const toggleSidebar = () => {
                     </template>
                 </MenuLink>
                 <p class="ml-4 mt-4 text-xs font-semibold text-gray-600 uppercase tracking-wide">GUESTS</p>
-                <MenuLink href="/guests" :active="$page.url.startsWith('/guests')" text="Guests" :isParent="true" :parentIsOpen="true">
+                <MenuLink href="/reservations" :active="$page.url.startsWith('/reservations')" text="Guests" :isParent="true" :parentIsOpen="true">
                     
                 </MenuLink>
 

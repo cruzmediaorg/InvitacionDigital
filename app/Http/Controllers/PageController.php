@@ -29,20 +29,7 @@ class PageController extends Controller
     {
         return Inertia::render('Pages/Public/Show', [
             'page' => $page->load(['blocks.fields', 'blocks.type', 'blocks.blocksTypeDesign', 'theme']),
-            'styles' => $page->only([
-                'home_h_text_color',
-                'home_p_text_color',
-                'home_h_font_family',
-                'home_p_font_family',
-                'home_h1_font_size',
-                'home_p_font_size',
-                'body_h_text_color',
-                'body_p_text_color',
-                'body_h_font_family',
-                'body_p_font_family',
-                'body_h2_font_size',
-                'body_p_font_size',
-            ]),
+            'styles' => $page->getEffectiveStyles(),
         ]);
     }
 
@@ -53,20 +40,7 @@ class PageController extends Controller
     {
         return Inertia::render('Pages/Edit', [
             'page' => $page->load(['blocks.fields', 'blocks.type', 'blocks.blocksTypeDesign', 'theme']),
-            'styles' => $page->only([
-                'home_h_text_color',
-                'home_p_text_color',
-                'home_h_font_family',
-                'home_p_font_family',
-                'home_h1_font_size',
-                'home_p_font_size',
-                'body_h_text_color',
-                'body_p_text_color',
-                'body_h_font_family',
-                'body_p_font_family',
-                'body_h2_font_size',
-                'body_p_font_size',
-            ]),
+            'styles' => $page->getEffectiveStyles(),
         ]);
     }
 

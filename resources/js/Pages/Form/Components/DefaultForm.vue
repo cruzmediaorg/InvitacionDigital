@@ -9,7 +9,7 @@ import EventsEditor from "@/Components/EventsEditor.vue";
 import ImageUploader from "@/Components/ImageUploader.vue";
 import PagePreview from '@/Components/PagePreview.vue';
 
-const props = defineProps(['page','block']);
+const props = defineProps(['page','block', 'styles']);
 const formData = ref([]);
 const existingFields = ref([]);
 
@@ -119,7 +119,7 @@ const updatedPage = computed(() => ({
                 </form>
             </div>
             <div class="w-1/2 min-h-screen p-4">
-                <PagePreview :page="updatedPage" :blocks="updatedPage.blocks" :styles="page" />
+                <PagePreview :page="updatedPage" :blocks="updatedPage.blocks" :styles="styles" />
             </div>
         </div>
     </AuthLayout>
