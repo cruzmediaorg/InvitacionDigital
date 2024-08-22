@@ -60,4 +60,11 @@ class BlockController extends Controller
 
         return redirect()->back()->with('success', 'Block settings updated successfully.');
     }
+
+    public function toggleVisibility(Request $request, Page $page, Block $block)
+    {
+        $block->update(['is_visible' => !$block->is_visible]);
+
+        return redirect()->back()->with('success', 'Block visibility toggled successfully.');
+    }
 }

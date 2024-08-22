@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, reactive, toRefs } from 'vue';
 import { Popover, PopoverButton, PopoverPanel } from '@headlessui/vue'
 import { ColorPicker } from 'vue-color-kit'
 import 'vue-color-kit/dist/vue-color-kit.css'
@@ -8,9 +8,12 @@ import TextInput from '@/Components/TextInput.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import FontSelector from '@/Components/FontSelector.vue';
 import { router } from '@inertiajs/vue3';
+import debounce from 'lodash.debounce';
 
-const props = defineProps(['page']);
-const emit = defineEmits(['update:modelValue', 'theme-updated']);
+const props = defineProps(['page', 'styles']);
+const emit = defineEmits(['handlePreviewUpdate']);
+
+const form = reactive({ ...props.styles });
 
 const fonts = [
   'Allura', 'Alex Brush', 'Cormorant Garamond', 'Crafty Lover', 'DM Serif',
@@ -19,42 +22,24 @@ const fonts = [
   'Playfair', 'Quicksand'
 ];
 
-const form = ref({
-  theme_id: props.page.theme_id,
-  home_h_text_color: props.page.home_h_text_color || props.page.theme?.home_h_text_color,
-  home_p_text_color: props.page.home_p_text_color || props.page.theme?.home_p_text_color,
-  home_h_font_family: props.page.home_h_font_family || props.page.theme?.home_h_font_family,
-  home_p_font_family: props.page.home_p_font_family || props.page.theme?.home_p_font_family,
-  home_h1_font_size: props.page.home_h1_font_size || props.page.theme?.home_h1_font_size,
-  home_h2_font_size: props.page.home_h2_font_size || props.page.theme?.home_h2_font_size,
-  home_h3_font_size: props.page.home_h3_font_size || props.page.theme?.home_h3_font_size,
-  home_p_font_size: props.page.home_p_font_size || props.page.theme?.home_p_font_size,
-  body_h_text_color: props.page.body_h_text_color || props.page.theme?.body_h_text_color,
-  body_p_text_color: props.page.body_p_text_color || props.page.theme?.body_p_text_color,
-  body_h_font_family: props.page.body_h_font_family || props.page.theme?.body_h_font_family,
-  body_p_font_family: props.page.body_p_font_family || props.page.theme?.body_p_font_family,
-  body_h1_font_size: props.page.body_h1_font_size || props.page.theme?.body_h1_font_size,
-  body_h2_font_size: props.page.body_h2_font_size || props.page.theme?.body_h2_font_size,
-  body_h3_font_size: props.page.body_h3_font_size || props.page.theme?.body_h3_font_size,
-  body_p_font_size: props.page.body_p_font_size || props.page.theme?.body_p_font_size,
-});
+const updateColor = debounce((color, key) => {
+  form[key] = color.hex;
+}, 300); 
 
-watch(form, (newValue) => {
-  emit('update:modelValue', newValue);
+const updateFontSize = debounce((value, key) => {
+  form[key] = value;
+}, 300);
+
+watch(() => form, (newVal) => {
+  emit('handlePreviewUpdate', newVal);
 }, { deep: true });
 
-const updateColor = (color, property) => {
-  form.value[property] = color.hex;
+const updateTheme = () => {
+  router.put(route('pages.update-theme', props.page.slug), {
+    ...form
+  });
 };
 
-const updateFontSize = (value, property) => {
-  form.value[property] = value;
-};
-
-const updateTheme = async () => {
-  router.reload({only: ['page']})
-  console.log('theme updated');
-};
 </script>
 
 <template>
@@ -206,12 +191,12 @@ const updateTheme = async () => {
           />
         </div>
         <div class="flex items-center justify-between">
-          <InputLabel for="body_h1_font_size" value="Headings Font Size" class="w-1/2" />
+          <InputLabel for="body_h2_font_size" value="Headings Font Size" class="w-1/2" />
           <div class="flex items-center w-1/2">
             <input
               type="range"
               id="body_h1_font_size"
-              v-model="form.body_h1_font_size"
+              v-model="form.body_h2_font_size"
               min="17"
               max="40"
               step="1"

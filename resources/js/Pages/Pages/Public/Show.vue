@@ -6,8 +6,8 @@
         </p>
     </div>
 
-    <div class="page-container" :class="{ 'mobile-view': isMobileView }">
-        <div class="home-section" :style="homeStyles">
+    <div class="page-container" :class="{ 'mobile-view': isMobileView }" ref="pageContainer">
+        <div class="home-section">
             <component
                 v-if="homeBlock"
                 :is="getComponent(getComponentName(homeBlock))"
@@ -15,10 +15,11 @@
                 :block="homeBlock"
             />
         </div>
-        <div class="scrollable-section" :style="bodyStyles">
+        <div class="scrollable-section">
             <component
                 :id="generateComponentId(block.type.name)"
                 v-for="block in otherBlocks"
+                v-show="block.is_visible"
                 :key="block.id"
                 :is="getComponent(getComponentName(block))"
                 :block="block"
@@ -28,7 +29,7 @@
 </template>
 
 <script setup>
-import { defineAsyncComponent, computed } from 'vue';
+import { defineAsyncComponent, computed, onMounted, watch, ref } from 'vue';
 
 const props = defineProps({
     page: Object,
@@ -57,28 +58,6 @@ const getComponent = (componentName) => {
     return defineAsyncComponent(() => import(`./Themes/${props.page.theme.name}/Components/${componentName}`));
 };
 
-const homeStyles = computed(() => ({
-    '--home-h-text-color': props.styles.home_h_text_color,
-    '--home-p-text-color': props.styles.home_p_text_color,
-    '--home-h-font-family': `${props.styles.home_h_font_family}, sans-serif`,
-    '--home-p-font-family': `${props.styles.home_p_font_family}, sans-serif`,
-    '--home-h1-font-size': `${props.styles.home_h1_font_size}px`,
-    '--home-h2-font-size': `${props.styles.home_h2_font_size}px`,
-    '--home-h3-font-size': `${props.styles.home_h3_font_size}px`,
-    '--home-p-font-size': `${props.styles.home_p_font_size}px`,
-}));
-
-const bodyStyles = computed(() => ({
-    '--body-h-text-color': props.styles.body_h_text_color,
-    '--body-p-text-color': props.styles.body_p_text_color,
-    '--body-h-font-family': `${props.styles.body_h_font_family}, sans-serif`,
-    '--body-p-font-family': `${props.styles.body_p_font_family}, sans-serif`,
-    '--body-h1-font-size': `${props.styles.body_h1_font_size}px`,
-    '--body-h2-font-size': `${props.styles.body_h2_font_size}px`,
-    '--body-h3-font-size': `${props.styles.body_h3_font_size}px`,
-    '--body-p-font-size': `${props.styles.body_p_font_size}px`,
-}));
-
 const homeTheme = computed(() => ({
     h_text_color: props.styles.home_h_text_color,
     p_text_color: props.styles.home_p_text_color,
@@ -105,6 +84,38 @@ const generateComponentId = (componentName) => {
     // Remove spaces and special characters
     return componentName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
 };
+
+const pageContainer = ref(null);
+
+const updateStyles = () => {
+  if (pageContainer.value) {
+    const style = pageContainer.value.style;
+    
+    // Home styles
+    style.setProperty('--home-h-text-color', props.styles.home_h_text_color);
+    style.setProperty('--home-p-text-color', props.styles.home_p_text_color);
+    style.setProperty('--home-h-font-family', `${props.styles.home_h_font_family}, sans-serif`);
+    style.setProperty('--home-p-font-family', `${props.styles.home_p_font_family}, sans-serif`);
+    style.setProperty('--home-h1-font-size', `${props.styles.home_h1_font_size}px`);
+    style.setProperty('--home-h2-font-size', `${props.styles.home_h2_font_size}px`);
+    style.setProperty('--home-h3-font-size', `${props.styles.home_h3_font_size}px`);
+    style.setProperty('--home-p-font-size', `${props.styles.home_p_font_size}px`);
+    
+    // Body styles
+    style.setProperty('--body-h-text-color', props.styles.body_h_text_color);
+    style.setProperty('--body-p-text-color', props.styles.body_p_text_color);
+    style.setProperty('--body-h-font-family', `${props.styles.body_h_font_family}, sans-serif`);
+    style.setProperty('--body-p-font-family', `${props.styles.body_p_font_family}, sans-serif`);
+    style.setProperty('--body-h1-font-size', `${props.styles.body_h1_font_size}px`);
+    style.setProperty('--body-h2-font-size', `${props.styles.body_h2_font_size}px`);
+    style.setProperty('--body-h3-font-size', `${props.styles.body_h3_font_size}px`);
+    style.setProperty('--body-p-font-size', `${props.styles.body_p_font_size}px`);
+  }
+};
+
+onMounted(updateStyles);
+
+watch(() => props.styles, updateStyles, { deep: true });
 </script>
 
 <style lang="scss" scoped>

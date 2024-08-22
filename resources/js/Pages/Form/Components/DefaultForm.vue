@@ -7,9 +7,6 @@ import {router } from "@inertiajs/vue3";
 import QAEditor from "@/Components/QAEditor.vue";
 import EventsEditor from "@/Components/EventsEditor.vue"; 
 import ImageUploader from "@/Components/ImageUploader.vue";
-import DialogModal from "@/Components/DialogModal.vue";
-import SecondaryButton from "@/Components/SecondaryButton.vue";
-import PrimaryButton from "@/Components/PrimaryButton.vue";
 import PagePreview from '@/Components/PagePreview.vue';
 
 const props = defineProps(['page','block']);
@@ -56,10 +53,6 @@ const submit = () => {
     });
 }
 
-const getFieldValue = (key) => {
-    return formData.value.find(field => field.key === key)?.value || '';
-}
-
 const setFieldValue = (key, value) => {
     const field = existingFields.value.find(field => field.key === key);
     if (field) {
@@ -71,18 +64,8 @@ const updateArrayField = (key, newValue) => {
     setFieldValue(key, JSON.stringify(newValue));
 }
 
-const showSettingsModal = ref(false);
 const blockTitle = ref(props.block.title);
 const isVisible = ref(props.block.is_visible);
-
-const openSettingsModal = () => {
-  showSettingsModal.value = true;
-};
-
-const closeSettingsModal = () => {
-  showSettingsModal.value = false;
-};
-
 
 const updatedBlock = computed(() => ({
   ...props.block,
@@ -96,20 +79,12 @@ const updatedPage = computed(() => ({
   blocks: props.page.blocks?.map(b => b.id === props.block.id ? updatedBlock.value : b)
 }));
 
-watch(existingFields, () => {
-    console.log('existingFields', existingFields.value);
-}, { deep: true });
 </script>
 
 <template>
     <AuthLayout title="Edit Block">
         <div class="flex">
             <div class="w-1/2 p-4 overflow-y-auto">
-              <div class="absolute top-4 right-4 p-2 rounded-full bg-gray-200 hover:bg-gray-300">
-                <button>
-                    
-                </button>
-              </div>
                 <form @submit.prevent="submit">
                     <h1 class="text-2xl font-bold mb-4">{{ block.title }}</h1>
                     <div v-for="field in existingFields" :key="field.id" class="mb-4">

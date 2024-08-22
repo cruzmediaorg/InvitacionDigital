@@ -49,6 +49,8 @@ Route::middleware([
     Route::resource('pages.blocks', BlockController::class)->only(['update', 'edit', 'store']);
     Route::put('/pages/{page}/blocks/{block}/settings', [BlockController::class, 'updateSettings'])->name('pages.blocks.update-settings');
     Route::post('pages.blocks.order', UpdateBlockOrderController::class)->name('blocks.order.update');
+    Route::put('/pages/{page}/blocks/{block}/toggle-visibility', [BlockController::class, 'toggleVisibility'])->name('pages.blocks.toggle-visibility');
+    Route::put('/pages/{page}/toggle-visibility', [PageController::class, 'toggleVisibility'])->name('pages.toggle-visibility');
     // Theme
     Route::put('/pages/{page}/update-theme', [PageController::class, 'updateTheme'])->name('pages.update-theme');
     // Images

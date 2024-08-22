@@ -9,11 +9,11 @@ import ThemeEditor from './Partials/ThemeEditor.vue';
 import PagePreview from '@/Components/PagePreview.vue';
 import { Switch } from '@headlessui/vue'
 
-const props = defineProps(['page'])
+const props = defineProps(['page', 'styles'])
 const blocks = ref(props.page.blocks.sort((a, b) => a.order - b.order))
 const activeTab = ref('blocks');
-const styles = ref({ ...props.page });
 const isPublished = ref(!!props.page.published_at);
+const updatedStyles = ref(props.styles);
 
 function onDragEnd() {
   blocks.value.forEach((block, index) => {
@@ -32,7 +32,7 @@ function onDragEnd() {
 
 function togglePublished() {
   isPublished.value = !isPublished.value;
-  router.post(route('pages.toggle-visibility', props.page.id), {
+  router.put(route('pages.toggle-visibility', props.page.slug), {
     published: isPublished.value
   });
 }
@@ -41,11 +41,16 @@ function downloadQRCode() {
   console.log('Downloading QR code...');
 }
 
-const updatedPage = computed(() => ({
-  ...props.page,
-  blocks: blocks.value,
-  ...styles.value
-}));
+const toggleBlockVisibility = (block) => {
+  router.put(route('pages.blocks.toggle-visibility', [props.page.slug, block.id]), {}, {
+    preserveState: true,
+    preserveScroll: true,
+    onSuccess: () => {
+      block.is_visible = !block.is_visible;
+    },
+  });
+};
+
 </script>
 
 <template>
@@ -82,10 +87,20 @@ const updatedPage = computed(() => ({
                   <i v-if="block.type.is_draggable" class="pi pi-bars"></i>
                   <h2 class="text-lg font-bold text-gray-800 font-sans">{{ block.type.name }}</h2>
                 </div>
-                <PrimaryButton 
+                <div class="flex items-center gap-2">
+                  <button
+                    v-if="block.type.is_draggable"
+                    @click="toggleBlockVisibility(block)"
+                    class="p-2 rounded-full hover:bg-gray-200 transition-colors"
+                    :title="block.is_visible ? 'Hide block' : 'Show block'"
+                  >
+                    <i :class="['pi', block.is_visible ? 'pi-eye' : 'pi-eye-slash']"></i>
+                  </button>
+                  <PrimaryButton 
                     type="button"
                     @click="router.get(route('pages.blocks.edit', [page.slug, block.id]))"
                     class="hover:bg-golden/80 cursor-pointer">Edit</PrimaryButton>
+                </div>
               </div>
             </template>
           </draggable>
@@ -93,16 +108,16 @@ const updatedPage = computed(() => ({
 
         <!-- Theme tab content -->
         <div v-if="activeTab === 'theme'">
-          <ThemeEditor :page="page" v-model="styles" />
+          <ThemeEditor :page="page" :styles="styles" @handlePreviewUpdate="updatedStyles = $event" />
         </div>
 
         <!-- Settings tab content -->
         <div v-if="activeTab === 'settings'" class="space-y-6">
           <div class="flex items-center justify-between">
-            <span class="text-lg font-medium text-gray-900">Website is {{ isPublished ? 'published' : 'unpublished' }}</span>
+            <span class="text-lg font-light text-gray-900">Website is <span :class="isPublished ? 'text-green-600' : 'text-red-600'" class="font-bold">{{ isPublished ? 'published' : 'hidden' }}</span></span>
             <Switch
               v-model="isPublished"
-              @change="togglePublished"
+              @click="togglePublished"
               :class="isPublished ? 'bg-blue-600' : 'bg-gray-200'"
               class="relative inline-flex h-6 w-11 items-center rounded-full"
             >
@@ -128,7 +143,7 @@ const updatedPage = computed(() => ({
       
       <!-- Preview section -->
       <div class="w-1/2 p-4">
-        <PagePreview :page="page" :blocks="blocks" :styles="styles" />
+        <PagePreview :page="page" :blocks="blocks" :styles="updatedStyles" />
       </div>
     </div>
   </AuthLayout>
