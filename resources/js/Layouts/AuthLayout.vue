@@ -43,6 +43,11 @@ const toggleSidebar = () => {
                         <MenuLink v-for="item in sortedMenu" :key="item.id" :active="item.url.includes($page.url)" :href="item.url" :text="item.name" />
                     </template>
                 </MenuLink>
+                <p class="ml-4 mt-4 text-xs font-semibold text-gray-600 uppercase tracking-wide">GUESTS</p>
+                <MenuLink href="/guests" :active="$page.url.startsWith('/guests')" text="Guests" :isParent="true" :parentIsOpen="true">
+                    
+                </MenuLink>
+
             </nav>
         </aside>
 
