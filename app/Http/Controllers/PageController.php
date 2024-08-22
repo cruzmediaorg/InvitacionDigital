@@ -27,23 +27,9 @@ class PageController extends Controller
      */
     public function show(Page $page, Request $request)
     {
-        if ($request->has('preview')) {
-            $blocks = json_decode($request->input('blocks'), true);
-            $styles = json_decode($request->input('styles'), true);
-            
-            // Apply the preview changes
-            $page->blocks = collect($blocks)->map(function ($block) {
-                return new Block($block);
-            });
-            $page->load(['blocks.fields', 'blocks.type', 'blocks.blocksTypeDesign', 'theme']);
-            $page->fill($styles);
-            
-        } else {
-            $page->load(['blocks.fields', 'blocks.type', 'blocks.blocksTypeDesign', 'theme']);
-        }
-
+  
         return Inertia::render('Pages/Public/Show', [
-            'page' => $page,
+            'page' => $page->load(['blocks.fields', 'blocks.type', 'blocks.blocksTypeDesign', 'theme']),
             'styles' => $page->only([
                 'home_h_text_color', 'home_p_text_color', 'home_h_font_family', 'home_p_font_family',
                 'home_h1_font_size', 'home_h2_font_size', 'home_h3_font_size', 'home_p_font_size',

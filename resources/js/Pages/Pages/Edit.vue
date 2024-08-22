@@ -8,6 +8,7 @@ import { router } from '@inertiajs/vue3'
 import ThemeEditor from './Partials/ThemeEditor.vue';
 import PagePreview from '@/Components/PagePreview.vue';
 import { Switch } from '@headlessui/vue'
+
 const props = defineProps(['page'])
 const blocks = ref(props.page.blocks.sort((a, b) => a.order - b.order))
 const activeTab = ref('blocks');
@@ -29,21 +30,22 @@ function onDragEnd() {
   })
 }
 
-watch([blocks, styles], () => {
-  // This will trigger a re-render of the preview when blocks or styles change
-}, { deep: true });
-
 function togglePublished() {
   isPublished.value = !isPublished.value;
-  router.post(route('pages.toggle-visibility', page.id), {
+  router.post(route('pages.toggle-visibility', props.page.id), {
     published: isPublished.value
   });
 }
 
 function downloadQRCode() {
-  // Implement QR code download logic here
   console.log('Downloading QR code...');
 }
+
+const updatedPage = computed(() => ({
+  ...props.page,
+  blocks: blocks.value,
+  ...styles.value
+}));
 </script>
 
 <template>

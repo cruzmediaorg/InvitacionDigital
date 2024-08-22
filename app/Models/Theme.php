@@ -29,7 +29,5 @@ class Theme extends Model
         return $this->hasMany(Page::class);
     }
 
-    /**
-     * Get the blocks for the theme.
-     */
+
 }
