@@ -23,24 +23,45 @@
         </button>
       </div>
 
-      <button @click="openModal" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+      <button @click="openModal" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mb-6">
         Edit RSVP Questions
       </button>
 
-      <div v-for="group in reservation.groups" :key="group.id" class="guest-group mb-8">
-        <div class="group-header flex justify-between items-center bg-gray-100 p-4 rounded-t-lg">
-          <span class="font-semibold">{{ group.name }}</span>
-          <div class="flex items-center space-x-4">
-            <span class="text-gray-600">{{ group.rsvp_code }}</span>
-            <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600" 
-                   :checked="isInvitationSent(group)" @change="toggleInvitation(group)" />
+      <div class="space-y-4">
+        <div class="border rounded-lg shadow-sm overflow-hidden">
+          <div class="bg-gray-50 p-4">
+            <div class="grid grid-cols-4 gap-4 font-semibold text-gray-700">
+              <div>Group Name</div>
+              <div>RSVP Code</div>
+              <div class="text-center">Invitation Sent</div>
+              <div></div>
+            </div>
+          </div>
+          <div v-for="group in reservation.groups" :key="group.id">
+            <div @click="toggleGroup(group.id)" 
+                 class="grid grid-cols-4 gap-4 items-center p-4 cursor-pointer hover:bg-gray-100 transition-colors duration-150">
+              <h3 class="text-lg font-semibold">{{ group.name }}</h3>
+              <span class="text-gray-600">{{ group.rsvp_code }}</span>
+              <div class="text-center">
+                <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600" 
+                       :checked="isInvitationSent(group)" @change="toggleInvitation(group)" />
+              </div>
+              <div class="flex justify-end">
+                <svg :class="{'transform rotate-180': openGroups[group.id]}" class="w-5 h-5 transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+              </div>
+            </div>
+            
+            <div v-show="openGroups[group.id]" class="border-t">
+              <GuestsGroupTable 
+                :guests="group.guests"
+                :rsvp-questions="reservation.rsvp_questions"
+                @update-guest="updateGuestAttendance"
+              />
+            </div>
           </div>
         </div>
-
-        <GuestGroupTable 
-          :guests="group.guests"
-          :rsvp-questions="reservation.rsvp_questions"
-        />
       </div>
     </div>
 
@@ -54,12 +75,19 @@
 </template>
 
 <script setup>
-import AuthLayout from "@/Layouts/AuthLayout.vue";
-import EditRSVPQuestionsModal from "./Components/EditRSVPQuestionsModal.vue";
-import GuestGroupTable from "./Components/GuestsGroupTable.vue";
 import { ref } from 'vue';
 import { router } from '@inertiajs/vue3';
+import AuthLayout from "@/Layouts/AuthLayout.vue";
+import EditRSVPQuestionsModal from "./Components/EditRSVPQuestionsModal.vue";
+import GuestsGroupTable from "./Components/GuestsGroupTable.vue";
+
 const props = defineProps(['reservation']);
+const isModalOpen = ref(false);
+const openGroups = ref({});
+
+function toggleGroup(groupId) {
+  openGroups.value[groupId] = !openGroups.value[groupId];
+}
 
 function isInvitationSent(group) {
   return group.guests.some(guest => guest.invitation_sent_at !== null);
@@ -67,9 +95,8 @@ function isInvitationSent(group) {
 
 function toggleInvitation(group) {
   // Implement invitation toggle logic
+  console.log('Toggle invitation for group:', group.id);
 }
-
-const isModalOpen = ref(false);
 
 const openModal = () => {
   isModalOpen.value = true;
@@ -80,15 +107,21 @@ const closeModal = () => {
 };
 
 const updateRSVPQuestions = (updatedQuestions) => {
-  // Here you would typically make an API call to update the questions
-  //   console.log('Updated questions:', updatedQuestions);
   router.put('/reservations/' + props.reservation.id, {
     rsvp_questions: updatedQuestions
   });
 
-  // After successful update:
   props.reservation.rsvp_questions = [...updatedQuestions];
   closeModal();
+};
+
+const updateGuestAttendance = (updatedGuest) => {
+  router.put(`/guests/${updatedGuest.id}`, {
+    rsvp_data: updatedGuest.rsvp_data
+  }, {
+    preserveState: true,
+    preserveScroll: true,
+  });
 };
 </script>
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BlockController;
+use App\Http\Controllers\GuestController;
 use App\Http\Controllers\ImageBlockFieldController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PageController;
@@ -63,4 +64,5 @@ Route::middleware([
     * RSVP
     */
     Route::resource('reservations', ReservationController::class)->only(['index', 'update']);
+    Route::resource('guests', GuestController::class)->only(['update']);
 });

@@ -15,6 +15,7 @@ class CreateReservationDummyData
             'options' => ['Yes', 'No'],
             'multiple' => false,
             'optional' => false,
+            'deletable' => false,
         ],
         [
             'id' => 2,
@@ -24,12 +25,14 @@ class CreateReservationDummyData
             'multiple' => false,
             'optional' => true,
             'default' => 'None',
+            'deletable' => true,
         ],
         [
             'id' => 3,
             'question' => 'Additional Comments',
             'type' => 'text',
             'optional' => true,
+            'deletable' => true,
         ],
     ];
 

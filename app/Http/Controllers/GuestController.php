@@ -52,7 +52,19 @@ class GuestController extends Controller
      */
     public function update(Request $request, Guest $guest)
     {
-        //
+        $validated = $request->validate([
+            'rsvp_data' => 'required|json',
+        ]);
+        
+        $rsvpData = json_decode($validated['rsvp_data'], true);
+        $attendance = collect($rsvpData)->firstWhere('question_id', 1);
+        
+        $guest->is_attending = $attendance['answer'] === 'Yes';
+        $guest->rsvp_data = $rsvpData;
+        $guest->answered_at = now();
+        $guest->save();
+        
+        return redirect()->back()->with('success', 'Guest updated successfully');
     }
 
     /**
