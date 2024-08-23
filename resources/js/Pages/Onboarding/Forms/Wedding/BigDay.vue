@@ -24,7 +24,7 @@
           type="checkbox"
           v-model="localNotDecidedYet"
           @change="handleNotDecidedYetChange"
-          class="rounded border-gray-300 text-golden shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+          class="rounded border-gray-300 text-golden shadow-sm focus:border-indigo-300 focus:ring focus:ring-golden focus:ring-opacity-50"
         >
         <span class="ml-2">Aún no decidido</span>
       </label>

@@ -25,11 +25,43 @@ class Reservation extends Model
 
     protected $guarded = [];
 
+    protected $appends = [
+        'count_attending',
+        'count_not_attending',
+        'count_pending',
+        'count_total_guests',
+        'page_title',   
+    ];
+
+    public function page() {
+        return $this->belongsTo(Page::class);
+    }
+
     public function groups() {
         return $this->hasMany(GuestGroup::class);
     }
 
     public function guests() {
         return $this->hasManyThrough(Guest::class, GuestGroup::class);
+    }
+
+    public function getCountAttendingAttribute() {
+        return $this->guests()->where('is_attending', true)->count();
+    }
+
+    public function getCountNotAttendingAttribute() {
+        return $this->guests()->where('is_attending', false)->count();
+    }
+
+    public function getCountPendingAttribute() {
+        return $this->guests()->where('is_attending', null)->count();
+    }
+
+    public function getCountTotalGuestsAttribute() {
+        return $this->guests()->count();
+    }
+
+    public function getPageTitleAttribute() {
+        return $this->page->title;
     }
 }

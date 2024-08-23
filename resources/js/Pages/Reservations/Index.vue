@@ -1,32 +1,50 @@
 <template>
   <AuthLayout title="Manage Guests">
-    <div class="manage-guests p-6">
-      <header class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold">Manage Guests</h1>
-        <button class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+    <div class="p-4 ">
+      <transition appear name="fade">
+        <header>
+            <div class="mb-6 flex flex-col justify-center items-center ">
+              <h2 class="text-2xl font-bold text-gray-800 font-cormorant mb-4">{{ reservation.page_title }}</h2>
+              <div class="bg-white border rounded-lg shadow-sm p-6">
+                <div class="grid grid-cols-4 gap-6">
+                  <div v-for="(stat, index) in stats" :key="stat.label" class="text-center">
+                    <transition appear name="fade" :delay="index * 100">
+                      <div>
+                        <p class="text-sm text-gray-500 uppercase tracking-wide mb-1">{{ stat.label }}</p>
+                        <p class="text-3xl font-bold text-golden">
+                          <animated-number :value="stat.value" :duration="1000" />
+                        </p>
+                      </div>
+                    </transition>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </header>
+      </transition>
+      
+      <div class="flex justify-between items-center my-4 border-y  py-6">
+        <PrimaryButton @click="openModal" class="text-sm">
+          Edit RSVP Questions
+        </PrimaryButton>
+        <PrimaryButton>
           + Add Guests
-        </button>
-      </header>
-
-      <div class="actions flex space-x-4 mb-6">
-        <button class="border border-gray-300 hover:bg-gray-100 text-gray-700 font-semibold py-2 px-4 rounded">
-          Filter Guests
-        </button>
-        <button class="border border-gray-300 hover:bg-gray-100 text-gray-700 font-semibold py-2 px-4 rounded">
-          Assign Tags
-        </button>
-        <button class="border border-gray-300 hover:bg-gray-100 text-gray-700 font-semibold py-2 px-4 rounded">
-          Manage Tags
-        </button>
-        <button class="border border-gray-300 hover:bg-gray-100 text-gray-700 font-semibold py-2 px-4 rounded">
-          Export Guests
-        </button>
+        </PrimaryButton>
       </div>
-
-      <button @click="openModal" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mb-6">
-        Edit RSVP Questions
-      </button>
-
+      <div class="flex space-x-4 mb-6">
+        <SecondaryButton>
+          Filter Guests
+        </SecondaryButton>
+        <SecondaryButton>
+          Assign Tags
+        </SecondaryButton>
+        <SecondaryButton>
+          Manage Tags
+        </SecondaryButton>
+        <SecondaryButton>
+          Export Guests
+        </SecondaryButton>
+      </div>
       <div class="space-y-4">
         <div class="border rounded-lg shadow-sm overflow-hidden">
           <div class="bg-gray-50 p-4">
@@ -39,17 +57,25 @@
           </div>
           <div v-for="group in reservation.groups" :key="group.id">
             <div @click="toggleGroup(group.id)" 
-                 class="grid grid-cols-4 gap-4 items-center p-4 cursor-pointer hover:bg-gray-100 transition-colors duration-150">
+                 class="grid grid-cols-4 gap-4 items-center p-4 cursor-pointer hover:bg-gray-50 transition-colors duration-150">
               <h3 class="text-lg font-semibold">{{ group.name }}</h3>
               <span class="text-gray-600">{{ group.rsvp_code }}</span>
               <div class="text-center">
-                <input type="checkbox" class="form-checkbox h-5 w-5 text-blue-600" 
-                       :checked="isInvitationSent(group)" @change="toggleInvitation(group)" />
+                <Switch
+                  v-model="group.invitationSent"
+                  @change="toggleInvitation(group)"
+                  :class="group.invitationSent ? 'bg-blue-600' : 'bg-gray-200'"
+                  class="relative inline-flex h-6 w-11 items-center rounded-full"
+                >
+                  <span class="sr-only">Toggle invitation</span>
+                  <span
+                    :class="group.invitationSent ? 'translate-x-6' : 'translate-x-1'"
+                    class="inline-block h-4 w-4 transform rounded-full bg-white transition"
+                  />
+                </Switch>
               </div>
               <div class="flex justify-end">
-                <svg :class="{'transform rotate-180': openGroups[group.id]}" class="w-5 h-5 transition-transform duration-200" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                </svg>
+                <i :class="['pi', openGroups[group.id] ? 'pi-chevron-up' : 'pi-chevron-down']"></i>
               </div>
             </div>
             
@@ -68,22 +94,33 @@
     <EditRSVPQuestionsModal 
       :show="isModalOpen" 
       :rsvp-questions="reservation.rsvp_questions"
-      @close="closeModal"
+      @update:show="closeModal"
       @update="updateRSVPQuestions"
     />
   </AuthLayout>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { router } from '@inertiajs/vue3';
 import AuthLayout from "@/Layouts/AuthLayout.vue";
 import EditRSVPQuestionsModal from "./Components/EditRSVPQuestionsModal.vue";
 import GuestsGroupTable from "./Components/GuestsGroupTable.vue";
+import PrimaryButton from "@/Components/PrimaryButton.vue";
+import SecondaryButton from "@/Components/SecondaryButton.vue";
+import { Switch } from '@headlessui/vue';
+import AnimatedNumber from './Components/AnimatedNumber.vue';
 
 const props = defineProps(['reservation']);
 const isModalOpen = ref(false);
 const openGroups = ref({});
+
+const stats = computed(() => [
+  { label: 'Attending', value: props.reservation.count_attending },
+  { label: 'Not Attending', value: props.reservation.count_not_attending },
+  { label: 'Pending', value: props.reservation.count_pending },
+  { label: 'Total', value: props.reservation.count_total_guests },
+]);
 
 function toggleGroup(groupId) {
   openGroups.value[groupId] = !openGroups.value[groupId];
@@ -125,8 +162,21 @@ const updateGuestAttendance = (updatedGuest) => {
 };
 </script>
 
-<style lang="scss" scoped>
-.manage-guests {
-  // Add styles for layout, buttons, tables, etc.
+<style scoped>
+/* Add any additional scoped styles here */
+
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-enter-active {
+  animation: countUp 0.5s ease-out forwards;
 }
 </style>

@@ -1,61 +1,78 @@
 <template>
   <SimpleModal :model-value="show" @update:model-value="closeModal">
-    <div class="p-4">
-      <h2 class="text-lg font-medium mb-4">
+    <div class="p-6">
+      <h2 class="text-2xl font-bold text-gray-800 font-cormorant mb-4">
         {{ selectedGuest ? `Edit Attendance for ${selectedGuest.name}` : 'Update Attendance' }}
       </h2>
       
       <div v-if="!selectedGuest">
-        <h3 class="text-md font-medium mb-2">Select your name to respond</h3>
-        <div v-for="guest in guests" :key="guest.id" class="mb-2">
+        <h3 class="text-lg font-medium text-gray-700 mb-4">Select your name to respond</h3>
+        <div class="space-y-2">
           <button 
+            v-for="guest in guests" 
+            :key="guest.id"
             @click="selectGuest(guest)"
-            class="bg-orange-500 hover:bg-brown-600 text-white font-bold py-2 px-4 rounded w-full text-left flex justify-between items-center"
+            class="w-full text-left flex justify-between items-center bg-white border border-gray-300 rounded-lg px-4 py-3 transition duration-150 ease-in-out hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-golden focus:border-golden"
           >
-            <span>{{ guest.name }}</span>
-            <span>Respond now</span>
+            <span class="font-medium text-gray-700">{{ guest.name }}</span>
+            <span class="text-sm text-golden">Respond now</span>
           </button>
         </div>
       </div>
-      <form v-else @submit.prevent="submitAttendance">
+      <form v-else @submit.prevent="submitAttendance" class="space-y-6">
         <div v-for="(question, index) in rsvpQuestions" :key="question.id" v-show="currentStep === index">
-          <h3 class="text-md font-medium mb-2">
+          <h3 class="text-lg font-medium text-gray-700 mb-2">
             {{ question.question }}
             <span v-if="!question.optional" class="text-red-500 ml-1">*</span>
           </h3>
-          <div v-if="question.type === 'options'">
-            <div v-for="option in question.options" :key="option" class="mb-2">
-              <label class="inline-flex items-center">
-                <input 
-                  :type="question.multiple ? 'checkbox' : 'radio'" 
-                  :value="option" 
-                  v-model="answers[question.id].answer" 
-                  class="form-radio"
-                  :required="!question.optional"
-                >
-                <span class="ml-2">{{ option }}</span>
+          <div v-if="question.type === 'options'" class="space-y-2">
+            <div v-for="option in question.options" :key="option" class="flex items-center">
+              <input 
+                :id="`radio-${question.id}-${option}`"
+                :type="question.multiple ? 'checkbox' : 'radio'" 
+                :name="`question-${question.id}`"
+                :value="option" 
+                v-model="answers[question.id].answer" 
+                :required="!question.optional"
+                class="hidden checked:bg-no-repeat checked:bg-center checked:border-golden checked:bg-golden-100"
+              >
+              <label :for="`radio-${question.id}-${option}`" class="flex items-start cursor-pointer text-gray-600 text-sm font-normal">
+                <span class="border border-gray-300 rounded-full mr-2 w-4 h-4 mt-1"></span>
+                <div class="block">
+                  <h5 class="w-full text-sm font-normal text-gray-600">{{ option }}</h5>
+                </div>
               </label>
             </div>
           </div>
           <div v-else-if="question.type === 'text'">
-            <input 
+            <BorderlessInput 
               type="text" 
               v-model="answers[question.id].answer" 
-              class="form-input w-full"
               :required="!question.optional"
-            >
+            />
           </div>
         </div>
-        <div class="flex justify-between mt-4">
-          <button type="button" @click="prevStep" v-if="currentStep > 0" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">
+        <div class="flex justify-between mt-6">
+          <SecondaryButton 
+            type="button" 
+            @click="prevStep" 
+            v-if="currentStep > 0"
+          >
             Previous
-          </button>
-          <button type="button" @click="nextStep" v-if="currentStep < rsvpQuestions.length - 1" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+          </SecondaryButton>
+          <PrimaryButton 
+            type="button" 
+            @click="nextStep" 
+            v-if="currentStep < rsvpQuestions.length - 1"
+          >
             Next
-          </button>
-          <button type="submit" v-if="currentStep === rsvpQuestions.length - 1" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+          </PrimaryButton>
+          <PrimaryButton 
+            type="submit" 
+            v-if="currentStep === rsvpQuestions.length - 1"
+          >
             Submit
-          </button>
+          </PrimaryButton>
         </div>
       </form>
     </div>
@@ -65,7 +82,9 @@
 <script setup>
 import { ref, watch } from 'vue';
 import SimpleModal from "@/Components/SimpleModal.vue";
-
+import PrimaryButton from "@/Components/PrimaryButton.vue";
+import SecondaryButton from "@/Components/SecondaryButton.vue";
+import BorderlessInput from "@/Components/BorderlessInput.vue";
 const props = defineProps({
   show: Boolean,
   guest: Object,
@@ -157,3 +176,13 @@ function closeModal(value) {
   emit('update:show', value);
 }
 </script>
+
+<style scoped>
+input[type="radio"]:checked + label span {
+  @apply bg-golden border-white shadow-sm relative;
+}
+input[type="radio"]:checked + label span::after {
+  content: "\2713"; /* Unicode character for checkmark */
+  @apply absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-xs font-bold;
+}
+</style>
