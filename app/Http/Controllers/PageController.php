@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Block;
+
+use App\Models\Guest;
+use App\Models\GuestGroup;
 use App\Models\Page;
 use App\Models\PagesType;
 use Illuminate\Http\Request;
@@ -27,9 +29,23 @@ class PageController extends Controller
      */
     public function show(Page $page, Request $request)
     {
+
+        $guests = [];
+
+        if ($request->query('guest_code')) {
+            $guest = Guest::where('rsvp_code', $request->query('guest_code'))->first();
+            $guests[] = $guest;
+        } 
+
+        if ($request->query('guest_group_code')) {
+            $guestGroup = GuestGroup::where('rsvp_code', $request->query('guest_group_code'))->first();
+            $guests = $guestGroup->guests;
+        }
+        
         return Inertia::render('Pages/Public/Show', [
-            'page' => $page->load(['blocks.fields', 'blocks.type', 'blocks.blocksTypeDesign', 'theme']),
+            'page' => $page->load(['blocks.fields', 'blocks.type', 'blocks.blocksTypeDesign', 'theme', 'reservation']),
             'styles' => $page->getEffectiveStyles(),
+            'guests' => $guests,
         ]);
     }
 

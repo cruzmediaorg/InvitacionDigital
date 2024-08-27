@@ -20,6 +20,8 @@ class BlockField extends Model implements HasMedia
 
     protected $appends = ['key'];
 
+    protected $with = ['blockTypeField'];
+
     public function getKeyAttribute()
     {
         return $this->blockTypeField->key;

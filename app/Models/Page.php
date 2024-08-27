@@ -73,6 +73,8 @@ class Page extends Model
      */
     public function blocksInMenuFormat(): Collection
     {
+        $this->load('blocks.type');
+
         $blocks = $this->blocks->sortBy('order');
 
         return $blocks->map(function ($block) {

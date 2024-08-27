@@ -37,6 +37,7 @@ class HandleInertiaRequests extends Middleware
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
             ],
+            'query' => $request->query(),
             'defaultPage' => Auth::user()?->defaultPage(),
             'menu' => Auth::user()?->defaultPageBlocks() ?? [],
             'flash' => [
